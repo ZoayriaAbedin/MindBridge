@@ -1,0 +1,133 @@
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.auth-box {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 500px;
+  width: 100%;
+  padding: 40px;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.auth-header h1 {
+  color: #2d3748;
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.auth-header p {
+  color: #718096;
+  font-size: 0.95rem;
+}
+
+.auth-form {
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #2d3748;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.btn-block {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.error-message {
+  background: #fed7d7;
+  color: #c53030;
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  border-left: 4px solid #c53030;
+}
+
+.success-message {
+  background: #c6f6d5;
+  color: #2f855a;
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  border-left: 4px solid #2f855a;
+}
+
+.auth-footer {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.auth-footer p {
+  color: #718096;
+  font-size: 0.9rem;
+}
+
+.auth-footer a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .auth-box {
+    padding: 30px 20px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-header h1 {
+    font-size: 1.75rem;
+  }
+}
