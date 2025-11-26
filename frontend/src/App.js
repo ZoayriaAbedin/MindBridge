@@ -15,6 +15,11 @@ import DoctorDashboard from './pages/DoctorDashboard';
 import DoctorProfile from './pages/DoctorProfile';
 import DoctorAppointments from './pages/DoctorAppointments';
 import DoctorEarnings from './pages/DoctorEarnings';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminUsers from './pages/AdminUsers';
+import AdminDoctors from './pages/AdminDoctors';
+import AdminAppointments from './pages/AdminAppointments';
+import AdminSalary from './pages/AdminSalary';
 import './App.css';
 
 function App() {
@@ -111,10 +116,39 @@ function App() {
                 path="/admin/dashboard"
                 element={
                   <PrivateRoute allowedRoles={['admin']}>
-                    <div style={{ padding: '50px', textAlign: 'center' }}>
-                      <h1>Admin Dashboard</h1>
-                      <p>Coming soon...</p>
-                    </div>
+                    <AdminDashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <PrivateRoute allowedRoles={['admin']}>
+                    <AdminUsers />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/doctors"
+                element={
+                  <PrivateRoute allowedRoles={['admin']}>
+                    <AdminDoctors />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/appointments"
+                element={
+                  <PrivateRoute allowedRoles={['admin']}>
+                    <AdminAppointments />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/salary"
+                element={
+                  <PrivateRoute allowedRoles={['admin']}>
+                    <AdminSalary />
                   </PrivateRoute>
                 }
               />
