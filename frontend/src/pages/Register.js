@@ -42,6 +42,16 @@ const Register = () => {
       return;
     }
 
+    // Check for password complexity
+    const hasUpperCase = /[A-Z]/.test(formData.password);
+    const hasLowerCase = /[a-z]/.test(formData.password);
+    const hasNumber = /\d/.test(formData.password);
+
+    if (!hasUpperCase || !hasLowerCase || !hasNumber) {
+      setError('Password must contain at least one uppercase letter, one lowercase letter, and one number');
+      return;
+    }
+
     setLoading(true);
 
     const { confirmPassword, ...registerData } = formData;
@@ -149,8 +159,9 @@ const Register = () => {
                 value={formData.password}
                 onChange={handleChange}
                 required
-                placeholder="Min. 8 characters"
+                placeholder="Min 8 chars, 1 uppercase, 1 number"
               />
+              <small className="form-text">Must contain uppercase, lowercase, and number</small>
             </div>
 
             <div className="form-group">

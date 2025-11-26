@@ -7,6 +7,14 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import PatientDashboard from './pages/PatientDashboard';
+import FindTherapist from './pages/FindTherapist';
+import BookAppointment from './pages/BookAppointment';
+import SupportGroups from './pages/SupportGroups';
+import MedicalHistory from './pages/MedicalHistory';
+import DoctorDashboard from './pages/DoctorDashboard';
+import DoctorProfile from './pages/DoctorProfile';
+import DoctorAppointments from './pages/DoctorAppointments';
+import DoctorEarnings from './pages/DoctorEarnings';
 import './App.css';
 
 function App() {
@@ -31,16 +39,69 @@ function App() {
                   </PrivateRoute>
                 }
               />
+              <Route
+                path="/doctors"
+                element={
+                  <PrivateRoute allowedRoles={['patient']}>
+                    <FindTherapist />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/appointments/new"
+                element={
+                  <PrivateRoute allowedRoles={['patient']}>
+                    <BookAppointment />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/support-groups"
+                element={
+                  <PrivateRoute allowedRoles={['patient']}>
+                    <SupportGroups />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/medical-history"
+                element={
+                  <PrivateRoute allowedRoles={['patient']}>
+                    <MedicalHistory />
+                  </PrivateRoute>
+                }
+              />
 
               {/* Doctor Routes */}
               <Route
                 path="/doctor/dashboard"
                 element={
                   <PrivateRoute allowedRoles={['doctor']}>
-                    <div style={{ padding: '50px', textAlign: 'center' }}>
-                      <h1>Doctor Dashboard</h1>
-                      <p>Coming soon...</p>
-                    </div>
+                    <DoctorDashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/doctor/profile"
+                element={
+                  <PrivateRoute allowedRoles={['doctor']}>
+                    <DoctorProfile />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/doctor/appointments"
+                element={
+                  <PrivateRoute allowedRoles={['doctor']}>
+                    <DoctorAppointments />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/doctor/earnings"
+                element={
+                  <PrivateRoute allowedRoles={['doctor']}>
+                    <DoctorEarnings />
                   </PrivateRoute>
                 }
               />
