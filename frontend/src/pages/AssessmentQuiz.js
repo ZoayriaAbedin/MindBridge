@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { assessmentsAPI } from '../services/api';
 import './AssessmentQuiz.css';
 
 const AssessmentQuiz = () => {
@@ -115,21 +116,27 @@ const AssessmentQuiz = () => {
     }
   };
 
-  const calculateResults = () => {
+  const calculateResults = async () => {
     const totalScore = Object.values(answers).reduce((sum, val) => sum + val, 0);
+    const maxScore = assessment.questions.length * (assessment.scale[assessment.scale.length - 1].value);
     const result = assessment.scoring.find(
       s => totalScore >= s.range[0] && totalScore <= s.range[1]
     );
     
-    // Store results in medical history (you'll need to implement backend API)
-    localStorage.setItem('lastAssessmentResult', JSON.stringify({
-      assessmentId: id,
-      assessmentName: assessment.name,
-      score: totalScore,
-      severity: result?.severity,
-      date: new Date().toISOString(),
-      userId: user?.id
-    }));
+    // Save to backend
+    try {
+      await assessmentsAPI.saveResult({
+        assessmentType: id === '1' ? 'PHQ-9' : id === '2' ? 'GAD-7' : 'PSS',
+        assessmentName: assessment.name,
+        score: totalScore,
+        maxScore: maxScore,
+        severity: result?.severity || 'Unknown',
+        answers: answers
+      });
+      console.log('Assessment result saved successfully');
+    } catch (error) {
+      console.error('Error saving assessment result:', error);
+    }
 
     setShowResults(true);
   };

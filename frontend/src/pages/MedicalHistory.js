@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { appointmentsAPI, prescriptionsAPI, medicalHistoryAPI } from '../services/api';
+import { appointmentsAPI, prescriptionsAPI, medicalHistoryAPI, assessmentsAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import './MedicalHistory.css';
 
@@ -9,6 +9,7 @@ const MedicalHistory = () => {
   const [appointments, setAppointments] = useState([]);
   const [prescriptions, setPrescriptions] = useState([]);
   const [medicalRecords, setMedicalRecords] = useState([]);
+  const [assessmentHistory, setAssessmentHistory] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,15 +19,17 @@ const MedicalHistory = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [appointmentsRes, prescriptionsRes, recordsRes] = await Promise.all([
+      const [appointmentsRes, prescriptionsRes, recordsRes, assessmentsRes] = await Promise.all([
         appointmentsAPI.getAll(),
         prescriptionsAPI.getAll().catch(() => ({ data: { data: [] } })),
         medicalHistoryAPI.getByPatient(user.userId).catch(() => ({ data: { data: [] } })),
+        assessmentsAPI.getHistory().catch(() => ({ data: { data: [] } })),
       ]);
 
       setAppointments(appointmentsRes.data.data || []);
       setPrescriptions(prescriptionsRes.data.data || []);
       setMedicalRecords(recordsRes.data.data || []);
+      setAssessmentHistory(assessmentsRes.data.data || []);
     } catch (error) {
       console.error('Error loading medical history:', error);
     } finally {
@@ -72,8 +75,7 @@ const MedicalHistory = () => {
       <div className="page-header">
         <h1>Medical History</h1>
         <p>View your appointment history and medical records</p>
-      </div>
-
+        </div>
       <div className="tabs">
         <button
           className={`tab ${activeTab === 'appointments' ? 'active' : ''}`}
@@ -92,6 +94,12 @@ const MedicalHistory = () => {
           onClick={() => setActiveTab('records')}
         >
           Medical Records ({medicalRecords.length})
+        </button>
+        <button
+          className={`tab ${activeTab === 'assessments' ? 'active' : ''}`}
+          onClick={() => setActiveTab('assessments')}
+        >
+          Assessment History ({assessmentHistory.length})
         </button>
       </div>
 
@@ -255,7 +263,85 @@ const MedicalHistory = () => {
             )}
           </div>
         )}
+
+        {activeTab === 'assessments' && (
+          <div className="assessment-history">
+            {assessmentHistory.length > 0 ? (
+              <div className="history-list">
+                {assessmentHistory.map((assessment) => (
+                  <div key={assessment.id} className="history-item assessment-item">
+                    <div className="item-header">
+                      <h3>{assessment.assessment_name}</h3>
+                      <span className="date">{formatDateTime(assessment.created_at)}</span>
+                    </div>
+                    
+                    <div className="item-details">
+                      <div className="assessment-score">
+                        <div className="score-display">
+                          <span className="score-value">{assessment.score}</span>
+                          <span className="score-max">/ {assessment.max_score}</span>
+                        </div>
+                        <div 
+                          className="severity-badge"
+                          style={{ 
+                            backgroundColor: getSeverityColor(assessment.severity),
+                            color: 'white',
+                            padding: '8px 16px',
+                            borderRadius: '20px',
+                            fontWeight: '600',
+                            fontSize: '14px'
+                          }}
+                        >
+                          {assessment.severity}
+                        </div>
+                      </div>
+                      
+                      <div className="detail-row">
+                        <span className="label">Assessment Type:</span>
+                        <span>{assessment.assessment_type}</span>
+                      </div>
+                      
+                      <div className="assessment-trend">
+                        {getAssessmentTrend(assessment.assessment_type)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="empty-state">
+                <h3>No assessment history</h3>
+                <p>Complete mental health assessments to track your progress over time</p>
+                <a href="/assessments" className="btn btn-primary" style={{ marginTop: '15px', display: 'inline-block' }}>
+                  Take an Assessment
+                </a>
+              </div>
+            )}
+          </div>
+        )}
       </div>
+    </div>
+  );
+};
+
+const getSeverityColor = (severity) => {
+  const colorMap = {
+    'Minimal': '#4caf50',
+    'Mild': '#8bc34a',
+    'Low Stress': '#4caf50',
+    'Moderate': '#ff9800',
+    'Moderate Stress': '#ff9800',
+    'Moderately Severe': '#ff5722',
+    'Severe': '#f44336',
+    'High Stress': '#f44336'
+  };
+  return colorMap[severity] || '#9e9e9e';
+};
+
+const getAssessmentTrend = (type) => {
+  return (
+    <div className="trend-info" style={{ marginTop: '10px', fontSize: '13px', color: '#666' }}>
+      <span>📊 View your progress trend in the detailed history</span>
     </div>
   );
 };

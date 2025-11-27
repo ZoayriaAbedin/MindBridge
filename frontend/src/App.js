@@ -20,6 +20,8 @@ import GameDetail from './pages/GameDetail';
 import DoctorDashboard from './pages/DoctorDashboard';
 import DoctorProfile from './pages/DoctorProfile';
 import DoctorAppointments from './pages/DoctorAppointments';
+import DoctorPatients from './pages/DoctorPatients';
+import DoctorSchedule from './pages/DoctorSchedule';
 import DoctorEarnings from './pages/DoctorEarnings';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminUsers from './pages/AdminUsers';
@@ -147,6 +149,22 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={['doctor']}>
                     <DoctorAppointments />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/doctor/patients"
+                element={
+                  <PrivateRoute allowedRoles={['doctor']}>
+                    <DoctorPatients />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/doctor/schedule"
+                element={
+                  <PrivateRoute allowedRoles={['doctor']}>
+                    <DoctorSchedule />
                   </PrivateRoute>
                 }
               />

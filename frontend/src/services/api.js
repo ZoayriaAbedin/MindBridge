@@ -102,5 +102,12 @@ export const usersAPI = {
   delete: (id) => api.delete(`/users/${id}`),
 };
 
+// Assessments API
+export const assessmentsAPI = {
+  getHistory: (params) => api.get('/assessments/history', { params }),
+  saveResult: (data) => api.post('/assessments/result', data),
+  getStats: (assessmentType) => api.get(`/assessments/stats/${assessmentType}`),
+};
+
 export default api;
 

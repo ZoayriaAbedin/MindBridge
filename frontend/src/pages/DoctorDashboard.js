@@ -115,6 +115,10 @@ const DoctorDashboard = () => {
               <span className="icon">📋</span>
               <span>View All Appointments</span>
             </Link>
+            <Link to="/doctor/patients" className="action-btn">
+              <span className="icon">🩺</span>
+              <span>Patient Records</span>
+            </Link>
             <Link to="/doctor/profile" className="action-btn">
               <span className="icon">👤</span>
               <span>Edit Profile</span>
@@ -157,7 +161,7 @@ const DoctorDashboard = () => {
                     <p>{apt.reason || 'Regular checkup'}</p>
                     <span className={`status status-${apt.status}`}>{apt.status}</span>
                   </div>
-                  <Link to={`/doctor/appointments/${apt.id}`} className="btn btn-sm">
+                  <Link to="/doctor/appointments" className="btn btn-sm">
                     View
                   </Link>
                 </div>

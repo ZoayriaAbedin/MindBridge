@@ -268,7 +268,7 @@ const updateProfile = async (req, res) => {
       const profileFields = [
         'licenseNumber', 'specialization', 'qualifications', 'experienceYears',
         'bio', 'consultationFee', 'address', 'city', 'state', 'zipCode',
-        'latitude', 'longitude'
+        'latitude', 'longitude', 'availabilitySchedule'
       ];
       
       const profileUpdates = {};

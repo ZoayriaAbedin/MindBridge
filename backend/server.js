@@ -17,6 +17,7 @@ const appointmentRoutes = require('./routes/appointment.routes');
 const prescriptionRoutes = require('./routes/prescription.routes');
 const medicalHistoryRoutes = require('./routes/medicalHistory.routes');
 const supportGroupRoutes = require('./routes/supportGroup.routes');
+const assessmentRoutes = require('./routes/assessment.routes');
 
 // Create Express app
 const app = express();
@@ -59,6 +60,7 @@ app.use(`/api/${API_VERSION}/appointments`, appointmentRoutes);
 app.use(`/api/${API_VERSION}/prescriptions`, prescriptionRoutes);
 app.use(`/api/${API_VERSION}/medical-history`, medicalHistoryRoutes);
 app.use(`/api/${API_VERSION}/support-groups`, supportGroupRoutes);
+app.use(`/api/${API_VERSION}/assessments`, assessmentRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
