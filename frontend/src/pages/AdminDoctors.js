@@ -124,7 +124,7 @@ const AdminDoctors = () => {
                   )}
                 </div>
                 <div className="doctor-rating">
-                  ⭐ {doctor.rating ? doctor.rating.toFixed(1) : 'New'}
+                  ⭐ {doctor.rating && typeof doctor.rating === 'number' ? doctor.rating.toFixed(1) : 'New'}
                   {doctor.total_reviews > 0 && (
                     <span className="review-count">({doctor.total_reviews})</span>
                   )}

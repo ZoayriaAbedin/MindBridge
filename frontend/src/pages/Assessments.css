@@ -1,0 +1,232 @@
+.assessments-page {
+  min-height: 100vh;
+  padding: 40px 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.assessments-header {
+  text-align: center;
+  margin-bottom: 60px;
+  color: white;
+}
+
+.assessments-header h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #ffffff;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.assessments-header p {
+  font-size: 1.3rem;
+  color: #e3f2fd;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Staircase Layout */
+.staircase-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  position: relative;
+}
+
+.staircase-step {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.95) 100%);
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 40px rgba(66, 165, 245, 0.25);
+  border: 2px solid rgba(100, 181, 246, 0.3);
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: stepSlideIn 0.6s ease-out;
+  animation-fill-mode: both;
+  opacity: 0;
+  position: relative;
+}
+
+/* Staircase positioning */
+.staircase-step:nth-child(odd) {
+  margin-left: 0;
+  margin-right: auto;
+  width: 85%;
+}
+
+.staircase-step:nth-child(even) {
+  margin-left: auto;
+  margin-right: 0;
+  width: 85%;
+  background: linear-gradient(135deg, rgba(243, 229, 245, 0.95) 0%, rgba(255, 255, 255, 0.95) 100%);
+  border-color: rgba(156, 39, 176, 0.3);
+}
+
+@keyframes stepSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(50px) translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateX(0);
+  }
+}
+
+.staircase-step:hover {
+  box-shadow: 0 20px 60px rgba(66, 165, 245, 0.4);
+  border-color: rgba(100, 181, 246, 0.6);
+}
+
+.staircase-step:nth-child(even):hover {
+  border-color: rgba(156, 39, 176, 0.6);
+  box-shadow: 0 20px 60px rgba(156, 39, 176, 0.4);
+}
+
+.step-content {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.step-icon {
+  font-size: 3.5rem;
+  min-width: 80px;
+  text-align: center;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+}
+
+.step-info {
+  flex: 1;
+}
+
+.step-info h3 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1a237e;
+  margin-bottom: 8px;
+}
+
+.step-description {
+  font-size: 1.1rem;
+  color: #546e7a;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.step-meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  font-size: 0.95rem;
+  color: #42a5f5;
+  font-weight: 600;
+  background: rgba(66, 165, 245, 0.1);
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(66, 165, 245, 0.2);
+}
+
+.step-arrow {
+  font-size: 2.5rem;
+  color: #42a5f5;
+  font-weight: bold;
+  min-width: 50px;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.staircase-step:hover .step-arrow {
+  transform: translateX(10px);
+}
+
+/* Assessment Notes */
+.assessment-notes {
+  max-width: 900px;
+  margin: 60px auto 40px;
+}
+
+.note-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 35px;
+  box-shadow: 0 10px 40px rgba(66, 165, 245, 0.25);
+  border: 2px solid rgba(100, 181, 246, 0.3);
+}
+
+.note-card h3 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1a237e;
+  margin-bottom: 20px;
+}
+
+.note-card ul {
+  list-style: none;
+  padding: 0;
+}
+
+.note-card li {
+  font-size: 1.1rem;
+  color: #546e7a;
+  margin-bottom: 14px;
+  padding-left: 30px;
+  position: relative;
+  line-height: 1.6;
+}
+
+.note-card li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #42a5f5;
+  font-weight: bold;
+  font-size: 1.3rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .assessments-header h1 {
+    font-size: 2.2rem;
+  }
+
+  .assessments-header p {
+    font-size: 1.1rem;
+  }
+
+  .staircase-step:nth-child(odd),
+  .staircase-step:nth-child(even) {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .step-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .step-icon {
+    font-size: 3rem;
+  }
+
+  .step-info h3 {
+    font-size: 1.5rem;
+  }
+
+  .step-description {
+    font-size: 1rem;
+  }
+
+  .step-arrow {
+    transform: rotate(90deg);
+  }
+
+  .staircase-step:hover .step-arrow {
+    transform: rotate(90deg) translateX(10px);
+  }
+}

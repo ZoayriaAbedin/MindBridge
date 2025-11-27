@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
+import InteractiveBackground from './components/InteractiveBackground';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -11,6 +12,10 @@ import FindTherapist from './pages/FindTherapist';
 import BookAppointment from './pages/BookAppointment';
 import SupportGroups from './pages/SupportGroups';
 import MedicalHistory from './pages/MedicalHistory';
+import Assessments from './pages/Assessments';
+import AssessmentQuiz from './pages/AssessmentQuiz';
+import Games from './pages/Games';
+import GameDetail from './pages/GameDetail';
 import DoctorDashboard from './pages/DoctorDashboard';
 import DoctorProfile from './pages/DoctorProfile';
 import DoctorAppointments from './pages/DoctorAppointments';
@@ -27,6 +32,7 @@ function App() {
     <AuthProvider>
       <Router>
         <div className="App">
+          <InteractiveBackground />
           <Navbar />
           <main className="main-content">
             <Routes>
@@ -73,6 +79,38 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={['patient']}>
                     <MedicalHistory />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/assessments"
+                element={
+                  <PrivateRoute allowedRoles={['patient']}>
+                    <Assessments />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/assessments/:id"
+                element={
+                  <PrivateRoute allowedRoles={['patient']}>
+                    <AssessmentQuiz />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/games"
+                element={
+                  <PrivateRoute allowedRoles={['patient', 'doctor']}>
+                    <Games />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/games/:id"
+                element={
+                  <PrivateRoute allowedRoles={['patient', 'doctor']}>
+                    <GameDetail />
                   </PrivateRoute>
                 }
               />

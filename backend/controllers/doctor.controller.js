@@ -83,6 +83,15 @@ const searchDoctors = async (req, res) => {
 
     const doctors = await query(sql, params);
 
+    // Transform data to ensure proper types
+    const transformedDoctors = doctors.map(doctor => ({
+      ...doctor,
+      rating: doctor.rating ? parseFloat(doctor.rating) : 0,
+      total_reviews: parseInt(doctor.total_reviews) || 0,
+      consultation_fee: parseFloat(doctor.consultation_fee) || 0,
+      experience_years: parseInt(doctor.experience_years) || 0
+    }));
+
     // Get total count
     let countSql = `
       SELECT COUNT(*) as total 
@@ -105,7 +114,7 @@ const searchDoctors = async (req, res) => {
 
     res.json({
       success: true,
-      data: doctors,
+      data: transformedDoctors,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
@@ -147,9 +156,18 @@ const getDoctorById = async (req, res) => {
       });
     }
 
+    // Transform data to ensure proper types
+    const doctor = {
+      ...doctors[0],
+      rating: doctors[0].rating ? parseFloat(doctors[0].rating) : 0,
+      total_reviews: parseInt(doctors[0].total_reviews) || 0,
+      consultation_fee: parseFloat(doctors[0].consultation_fee) || 0,
+      experience_years: parseInt(doctors[0].experience_years) || 0
+    };
+
     res.json({
       success: true,
-      data: doctors[0]
+      data: doctor
     });
   } catch (error) {
     console.error('Get doctor error:', error);
@@ -219,10 +237,20 @@ const getRecommendedDoctors = async (req, res) => {
 
     const doctors = await query(sql, params);
 
+    // Transform data to ensure proper types
+    const transformedDoctors = doctors.map(doctor => ({
+      ...doctor,
+      rating: doctor.rating ? parseFloat(doctor.rating) : 0,
+      total_reviews: parseInt(doctor.total_reviews) || 0,
+      consultation_fee: parseFloat(doctor.consultation_fee) || 0,
+      experience_years: parseInt(doctor.experience_years) || 0,
+      distance: doctor.distance ? parseFloat(doctor.distance) : null
+    }));
+
     res.json({
       success: true,
-      data: doctors,
-      message: doctors.length === 0 ? 'No doctors found matching your criteria. Try adjusting your budget or location.' : undefined
+      data: transformedDoctors,
+      message: transformedDoctors.length === 0 ? 'No doctors found matching your criteria. Try adjusting your budget or location.' : undefined
     });
   } catch (error) {
     console.error('Get recommended doctors error:', error);

@@ -19,7 +19,8 @@ const BookAppointment = () => {
     doctorId: preselectedDoctorId || '',
     appointmentDate: '',
     appointmentTime: '',
-    appointmentType: 'in_person',
+    appointmentType: 'consultation',
+    meetingMode: 'in_person',
     reason: '',
     notes: '',
   });
@@ -66,14 +67,16 @@ const BookAppointment = () => {
     try {
       setSubmitting(true);
       
-      const appointmentDateTime = `${formData.appointmentDate} ${formData.appointmentTime}`;
+      // Format the date properly for validation
+      const appointmentDateFormatted = formData.appointmentDate;
       
       await appointmentsAPI.create({
-        doctor_id: formData.doctorId,
-        appointment_date: appointmentDateTime,
-        appointment_type: formData.appointmentType,
-        reason: formData.reason,
-        notes: formData.notes,
+        doctorId: parseInt(formData.doctorId),
+        appointmentDate: appointmentDateFormatted,
+        appointmentTime: formData.appointmentTime,
+        appointmentType: formData.appointmentType,
+        meetingMode: formData.meetingMode,
+        notes: formData.notes || '',
       });
 
       setSuccess('Appointment booked successfully!');
@@ -173,6 +176,22 @@ const BookAppointment = () => {
               onChange={handleChange}
               required
             >
+              <option value="consultation">Consultation</option>
+              <option value="follow_up">Follow-up</option>
+              <option value="therapy">Therapy Session</option>
+              <option value="emergency">Emergency</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="meetingMode">Meeting Mode *</label>
+            <select
+              id="meetingMode"
+              name="meetingMode"
+              value={formData.meetingMode}
+              onChange={handleChange}
+              required
+            >
               <option value="in_person">In-Person</option>
               <option value="video">Video Call</option>
               <option value="phone">Phone Call</option>
@@ -214,10 +233,17 @@ const BookAppointment = () => {
             </button>
             <button
               type="submit"
-              className="btn btn-primary"
+              className={`btn btn-primary ${submitting ? 'btn-spinning' : ''}`}
               disabled={submitting || loading}
             >
-              {submitting ? 'Booking...' : 'Book Appointment'}
+              {submitting ? (
+                <>
+                  <span className="spinner"></span>
+                  Booking...
+                </>
+              ) : (
+                'Book Appointment'
+              )}
             </button>
           </div>
         </form>

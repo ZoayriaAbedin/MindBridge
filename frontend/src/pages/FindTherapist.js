@@ -138,7 +138,7 @@ const FindTherapist = () => {
                     <h3>Dr. {doctor.first_name} {doctor.last_name}</h3>
                     <p className="specialization">{doctor.specialization}</p>
                     <div className="rating">
-                      ⭐ {doctor.rating ? doctor.rating.toFixed(1) : 'New'} 
+                      ⭐ {doctor.rating && typeof doctor.rating === 'number' ? doctor.rating.toFixed(1) : 'New'} 
                       {doctor.total_reviews > 0 && ` (${doctor.total_reviews} reviews)`}
                     </div>
                   </div>

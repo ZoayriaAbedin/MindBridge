@@ -8,6 +8,7 @@ const pool = mysql.createPool({
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'mindbridge_db',
   port: process.env.DB_PORT || 3306,
+  socketPath: process.env.DB_SOCKET,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,

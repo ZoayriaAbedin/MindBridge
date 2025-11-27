@@ -42,6 +42,9 @@ const Home = () => {
       {/* Features Section */}
       <section className="features">
         <h2>How MindBridge Helps You</h2>
+        <p className="features-subtitle">
+          Comprehensive mental health support designed around your needs
+        </p>
         <div className="feature-grid">
           <div className="feature-card">
             <div className="feature-icon">🔍</div>
@@ -83,32 +86,36 @@ const Home = () => {
 
       {/* Stats Section */}
       <section className="stats">
-        <div className="stat-item">
-          <h3>500+</h3>
-          <p>Licensed Therapists</p>
-        </div>
-        <div className="stat-item">
-          <h3>10,000+</h3>
-          <p>Patients Helped</p>
-        </div>
-        <div className="stat-item">
-          <h3>50+</h3>
-          <p>Support Groups</p>
-        </div>
-        <div className="stat-item">
-          <h3>4.8/5</h3>
-          <p>Average Rating</p>
+        <div className="stats-container">
+          <div className="stat-item">
+            <h3>500+</h3>
+            <p>Licensed Therapists</p>
+          </div>
+          <div className="stat-item">
+            <h3>10,000+</h3>
+            <p>Patients Helped</p>
+          </div>
+          <div className="stat-item">
+            <h3>50+</h3>
+            <p>Support Groups</p>
+          </div>
+          <div className="stat-item">
+            <h3>4.8/5</h3>
+            <p>Average Rating</p>
+          </div>
         </div>
       </section>
 
       {/* CTA Section */}
       {!isAuthenticated && (
         <section className="cta-section">
-          <h2>Ready to Start Your Journey?</h2>
-          <p>Join thousands of people taking control of their mental health</p>
-          <Link to="/register" className="btn btn-primary btn-large">
-            Create Free Account
-          </Link>
+          <div className="cta-content">
+            <h2>Ready to Start Your Journey?</h2>
+            <p>Join thousands of people taking control of their mental health</p>
+            <Link to="/register" className="btn btn-primary btn-large">
+              Create Free Account
+            </Link>
+          </div>
         </section>
       )}
     </div>

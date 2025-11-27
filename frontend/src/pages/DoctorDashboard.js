@@ -127,6 +127,10 @@ const DoctorDashboard = () => {
               <span className="icon">💵</span>
               <span>View Earnings</span>
             </Link>
+            <Link to="/games" className="action-btn">
+              <span className="icon">🎮</span>
+              <span>Mindful Games</span>
+            </Link>
           </div>
         </div>
 

@@ -2,17 +2,99 @@
   max-width: 800px;
   margin: 0 auto;
   padding: 40px 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 40px;
+  animation: fadeInDown 0.6s ease-out;
+}
+
+.page-header h1 {
+  font-size: 2.8rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #64b5f6, #42a5f5, #2196f3);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 20px rgba(100, 181, 246, 0.5));
+}
+
+.page-header p {
+  color: #e3f2fd;
+  font-size: 1.2rem;
+  font-weight: 500;
+  text-shadow: 0 0 10px rgba(100, 181, 246, 0.3);
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .appointment-form-container {
-  background: white;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
   padding: 40px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 40px rgba(66, 165, 245, 0.2);
+  border: 1px solid rgba(100, 181, 246, 0.2);
+  animation: slideInUp 0.8s ease-out;
+  transition: all 0.3s ease;
+}
+
+.appointment-form-container:hover {
+  box-shadow: 0 20px 60px rgba(66, 165, 245, 0.3), 0 0 40px rgba(100, 181, 246, 0.2);
+}
+
+@keyframes formCardPop {
+  0% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-10px) scale(1.02); }
+  100% { transform: translateY(-8px) scale(1.01); }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .appointment-form .form-group {
-  margin-bottom: 25px;
+  margin-bottom: 28px;
+  position: relative;
+  animation: fadeInUp 0.6s ease-out;
+  animation-fill-mode: both;
+}
+
+.appointment-form .form-group:nth-child(1) { animation-delay: 0.1s; }
+.appointment-form .form-group:nth-child(2) { animation-delay: 0.2s; }
+.appointment-form .form-group:nth-child(3) { animation-delay: 0.3s; }
+.appointment-form .form-group:nth-child(4) { animation-delay: 0.4s; }
+.appointment-form .form-group:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .appointment-form label {
@@ -26,19 +108,37 @@
 .appointment-form select,
 .appointment-form textarea {
   width: 100%;
-  padding: 12px;
+  padding: 14px 16px;
   border: 2px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 1rem;
-  transition: border-color 0.3s;
+  transition: all 0.3s ease;
   box-sizing: border-box;
+  background: #fff;
 }
 
 .appointment-form input:focus,
 .appointment-form select:focus,
 .appointment-form textarea:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #42a5f5;
+  box-shadow: 0 0 0 4px rgba(66, 165, 245, 0.15), 0 0 20px rgba(100, 181, 246, 0.3);
+  transform: translateY(-2px);
+}
+
+.appointment-form input:hover,
+.appointment-form select:hover,
+.appointment-form textarea:hover {
+  border-color: #64b5f6;
+}
+
+.appointment-form label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #1565c0;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
 }
 
 .appointment-form textarea {
@@ -56,12 +156,30 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 15px;
-  background: #f0fdf4;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
   border: 2px solid #86efac;
-  border-radius: 8px;
+  border-radius: 12px;
   color: #15803d;
-  font-weight: 500;
+  font-weight: 600;
+  animation: slideInRight 0.5s ease-out;
+  transition: all 0.3s ease;
+}
+
+.preselected-doctor:hover {
+  transform: translateX(5px);
+  box-shadow: 0 5px 15px rgba(134, 239, 172, 0.3);
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .preselected-doctor span {
@@ -87,25 +205,82 @@
   display: flex;
   gap: 15px;
   justify-content: flex-end;
-  margin-top: 30px;
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 2px solid rgba(66, 165, 245, 0.2);
+}
+
+.form-actions .btn {
+  animation: fadeInUp 0.6s ease-out 0.6s both;
+  min-width: 150px;
+}
+
+.form-actions .btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 10px 30px rgba(66, 165, 245, 0.4);
 }
 
 .error-message {
-  background: #fed7d7;
+  background: linear-gradient(135deg, rgba(254, 215, 215, 0.95), rgba(252, 165, 165, 0.95));
   color: #c53030;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 25px;
-  border-left: 4px solid #c53030;
+  padding: 18px 24px;
+  border-radius: 12px;
+  margin-bottom: 28px;
+  border-left: 5px solid #c53030;
+  animation: slideInDown 0.5s ease-out, shake 0.5s ease-in-out 0.5s;
+  box-shadow: 0 5px 20px rgba(197, 48, 48, 0.2);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.error-message::before {
+  content: '⚠️';
+  font-size: 1.4rem;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
 }
 
 .success-message {
-  background: #c6f6d5;
+  background: linear-gradient(135deg, rgba(198, 246, 213, 0.95), rgba(154, 230, 180, 0.95));
   color: #2f855a;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 25px;
-  border-left: 4px solid #2f855a;
+  padding: 18px 24px;
+  border-radius: 12px;
+  margin-bottom: 28px;
+  border-left: 5px solid #2f855a;
+  animation: slideInDown 0.5s ease-out, bounce 0.8s ease-in-out 0.5s;
+  box-shadow: 0 5px 20px rgba(47, 133, 90, 0.2);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.success-message::before {
+  content: '✓';
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
 @media (max-width: 768px) {
