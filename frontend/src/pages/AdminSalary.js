@@ -31,7 +31,7 @@ const AdminSalary = () => {
       // Calculate earnings for each doctor
       const doctorsWithEarnings = doctorsData.map(doctor => {
         const doctorAppointments = appointmentsData.filter(
-          apt => apt.doctor_id === doctor.user_id
+          apt => apt.doctor_id === doctor.id
         );
         const totalEarnings = doctorAppointments.reduce(
           (sum, apt) => sum + (parseFloat(apt.consultation_fee) || 0),
@@ -73,7 +73,7 @@ const AdminSalary = () => {
       // In a real app, you'd have an API endpoint to save bonus
       // For now, we'll just update locally and show success
       const updatedDoctors = doctors.map(d => 
-        d.user_id === selectedDoctor.user_id
+        d.id === selectedDoctor.id
           ? { ...d, bonus: (d.bonus || 0) + parseFloat(bonusAmount) }
           : d
       );
@@ -183,7 +183,7 @@ const AdminSalary = () => {
           </thead>
           <tbody>
             {doctors.map((doctor) => (
-              <tr key={doctor.user_id}>
+              <tr key={doctor.id}>
                 <td>
                   <div className="doctor-name">
                     Dr. {doctor.first_name} {doctor.last_name}

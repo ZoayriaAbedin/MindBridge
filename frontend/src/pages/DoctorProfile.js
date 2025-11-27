@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authAPI, usersAPI } from '../services/api';
+import DeleteAccountModal from '../components/DeleteAccountModal';
 import './DoctorProfile.css';
 
 const DoctorProfile = () => {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, logout } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [profileData, setProfileData] = useState({
@@ -24,6 +29,7 @@ const DoctorProfile = () => {
     state: '',
     zipCode: '',
     country: 'USA',
+    isApproved: false,
   });
 
   useEffect(() => {
@@ -39,17 +45,18 @@ const DoctorProfile = () => {
         lastName: profile.last_name || '',
         email: profile.email || '',
         phone: profile.phone || '',
-        licenseNumber: profile.license_number || '',
-        specialization: profile.specialization || '',
-        qualifications: profile.qualifications || '',
-        experienceYears: profile.experience_years || '',
-        bio: profile.bio || '',
-        consultationFee: profile.consultation_fee || '',
-        address: profile.address || '',
-        city: profile.city || '',
-        state: profile.state || '',
-        zipCode: profile.zip_code || '',
-        country: profile.country || 'USA',
+        licenseNumber: profile.profile?.license_number || '',
+        specialization: profile.profile?.specialization || '',
+        qualifications: profile.profile?.qualifications || '',
+        experienceYears: profile.profile?.experience_years || '',
+        bio: profile.profile?.bio || '',
+        consultationFee: profile.profile?.consultation_fee || '',
+        address: profile.profile?.address || '',
+        city: profile.profile?.city || '',
+        state: profile.profile?.state || '',
+        zipCode: profile.profile?.zip_code || '',
+        country: profile.profile?.country || 'USA',
+        isApproved: profile.profile?.is_approved || false,
       });
     } catch (error) {
       console.error('Error loading profile:', error);
@@ -72,30 +79,54 @@ const DoctorProfile = () => {
     setLoading(true);
 
     try {
-      const response = await authAPI.updateProfile({
-        first_name: profileData.firstName,
-        last_name: profileData.lastName,
+      await authAPI.updateProfile({
+        firstName: profileData.firstName,
+        lastName: profileData.lastName,
         phone: profileData.phone,
-        license_number: profileData.licenseNumber,
-        specialization: profileData.specialization,
-        qualifications: profileData.qualifications,
-        experience_years: parseInt(profileData.experienceYears) || 0,
-        bio: profileData.bio,
-        consultation_fee: parseFloat(profileData.consultationFee) || 0,
-        address: profileData.address,
-        city: profileData.city,
-        state: profileData.state,
-        zip_code: profileData.zipCode,
-        country: profileData.country,
+        profile: {
+          licenseNumber: profileData.licenseNumber,
+          specialization: profileData.specialization,
+          qualifications: profileData.qualifications,
+          experienceYears: parseInt(profileData.experienceYears) || 0,
+          bio: profileData.bio,
+          consultationFee: parseFloat(profileData.consultationFee) || 0,
+          address: profileData.address,
+          city: profileData.city,
+          state: profileData.state,
+          zipCode: profileData.zipCode,
+          country: profileData.country,
+        }
       });
 
-      updateUser(response.data.data);
-      setSuccess('Profile updated successfully!');
+      // Reload profile to get updated approval status
+      await loadProfile();
+      
+      if (profileData.isApproved) {
+        setSuccess('Profile updated successfully! Your profile is approved and visible to patients.');
+      } else {
+        setSuccess('Profile updated successfully! Your profile is pending admin approval. You will be notified once approved.');
+      }
     } catch (error) {
       console.error('Error updating profile:', error);
       setError(error.response?.data?.message || 'Failed to update profile');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async (password) => {
+    setError('');
+    setDeleteLoading(true);
+
+    try {
+      await authAPI.deleteProfile({ password });
+      alert('Your account has been successfully deleted.');
+      logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      setError(error.response?.data?.message || 'Failed to delete account');
+      setDeleteLoading(false);
     }
   };
 
@@ -107,6 +138,16 @@ const DoctorProfile = () => {
       </div>
 
       <div className="profile-form-container">
+        {profileData.isApproved ? (
+          <div className="info-message success-banner">
+            ✓ Your profile is <strong>approved</strong> and visible to patients
+          </div>
+        ) : (
+          <div className="info-message warning-banner">
+            ⏳ Your profile is <strong>pending admin approval</strong>. You will receive notification once approved and your profile will be visible to patients.
+          </div>
+        )}
+        
         {error && <div className="error-message">{error}</div>}
         {success && <div className="success-message">{success}</div>}
 
@@ -325,8 +366,23 @@ const DoctorProfile = () => {
             <button type="submit" className="btn btn-primary" disabled={loading}>
               {loading ? 'Saving...' : 'Save Profile'}
             </button>
+            <button
+              type="button"
+              onClick={() => setShowDeleteModal(true)}
+              className="btn btn-danger"
+              disabled={loading}
+            >
+              Delete Account
+            </button>
           </div>
         </form>
+
+        <DeleteAccountModal
+          isOpen={showDeleteModal}
+          onClose={() => setShowDeleteModal(false)}
+          onConfirm={handleDeleteAccount}
+          loading={deleteLoading}
+        />
       </div>
     </div>
   );

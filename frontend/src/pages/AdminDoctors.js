@@ -16,8 +16,12 @@ const AdminDoctors = () => {
   const loadDoctors = async () => {
     try {
       setLoading(true);
-      const response = await doctorsAPI.search({});
-      setDoctors(response.data.data || []);
+      // Pass empty isApproved to get all doctors (both approved and pending)
+      const response = await doctorsAPI.search({ isApproved: '' });
+      const doctorsList = response.data.data || [];
+      console.log('Loaded doctors for admin:', doctorsList);
+      console.log('Pending doctors:', doctorsList.filter(d => !d.is_approved));
+      setDoctors(doctorsList);
     } catch (error) {
       console.error('Error loading doctors:', error);
     } finally {
@@ -114,7 +118,7 @@ const AdminDoctors = () => {
       ) : filteredDoctors.length > 0 ? (
         <div className="doctors-grid">
           {filteredDoctors.map((doctor) => (
-            <div key={doctor.user_id} className="doctor-card">
+            <div key={doctor.id} className="doctor-card">
               <div className="doctor-header">
                 <div className="doctor-info">
                   <h3>Dr. {doctor.first_name} {doctor.last_name}</h3>
@@ -177,7 +181,7 @@ const AdminDoctors = () => {
               {!doctor.is_approved && (
                 <div className="doctor-actions">
                   <button
-                    onClick={() => handleApprove(doctor.user_id)}
+                    onClick={() => handleApprove(doctor.id)}
                     className="btn btn-success"
                   >
                     Approve Doctor

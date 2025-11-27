@@ -21,7 +21,6 @@ const BookAppointment = () => {
     appointmentTime: '',
     appointmentType: 'consultation',
     meetingMode: 'in_person',
-    reason: '',
     notes: '',
   });
 
@@ -29,11 +28,23 @@ const BookAppointment = () => {
     loadDoctors();
   }, []);
 
+  useEffect(() => {
+    // Update formData if preselectedDoctorId is provided via URL
+    if (preselectedDoctorId) {
+      setFormData(prev => ({
+        ...prev,
+        doctorId: preselectedDoctorId
+      }));
+    }
+  }, [preselectedDoctorId]);
+
   const loadDoctors = async () => {
     try {
       setLoading(true);
       const response = await doctorsAPI.search({ isApproved: true });
-      setDoctors(response.data.data || []);
+      const doctorsList = response.data.data || [];
+      console.log('Loaded doctors:', doctorsList);
+      setDoctors(doctorsList);
     } catch (error) {
       console.error('Error loading doctors:', error);
     } finally {
@@ -42,9 +53,11 @@ const BookAppointment = () => {
   };
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+    console.log('Form field changed:', name, '=', value);
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
     setError('');
   };
@@ -67,17 +80,29 @@ const BookAppointment = () => {
     try {
       setSubmitting(true);
       
-      // Format the date properly for validation
-      const appointmentDateFormatted = formData.appointmentDate;
+      // Validate doctorId
+      const doctorIdNum = parseInt(formData.doctorId);
+      if (!doctorIdNum || isNaN(doctorIdNum)) {
+        setError('Please select a therapist');
+        setSubmitting(false);
+        return;
+      }
       
-      await appointmentsAPI.create({
-        doctorId: parseInt(formData.doctorId),
-        appointmentDate: appointmentDateFormatted,
-        appointmentTime: formData.appointmentTime,
+      // Ensure time is in HH:MM format (without seconds)
+      const timeFormatted = formData.appointmentTime.substring(0, 5);
+      
+      const appointmentData = {
+        doctorId: doctorIdNum,
+        appointmentDate: formData.appointmentDate,
+        appointmentTime: timeFormatted,
         appointmentType: formData.appointmentType,
         meetingMode: formData.meetingMode,
         notes: formData.notes || '',
-      });
+      };
+      
+      console.log('Sending appointment data:', appointmentData);
+      
+      await appointmentsAPI.create(appointmentData);
 
       setSuccess('Appointment booked successfully!');
       setTimeout(() => {
@@ -85,7 +110,20 @@ const BookAppointment = () => {
       }, 2000);
     } catch (error) {
       console.error('Error booking appointment:', error);
-      setError(error.response?.data?.message || 'Failed to book appointment');
+      console.error('Error response:', error.response?.data);
+      
+      let errorMessage = 'Failed to book appointment';
+      
+      if (error.response?.data?.errors) {
+        // Format validation errors
+        errorMessage = error.response.data.errors
+          .map(err => `${err.field}: ${err.message}`)
+          .join(', ');
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setSubmitting(false);
     }
@@ -131,7 +169,7 @@ const BookAppointment = () => {
               >
                 <option value="">-- Select a therapist --</option>
                 {doctors.map((doctor) => (
-                  <option key={doctor.user_id} value={doctor.user_id}>
+                  <option key={`doctor-${doctor.id}`} value={doctor.id}>
                     Dr. {doctor.first_name} {doctor.last_name} - {doctor.specialization}
                     {doctor.consultation_fee && ` ($${doctor.consultation_fee})`}
                   </option>
@@ -176,10 +214,10 @@ const BookAppointment = () => {
               onChange={handleChange}
               required
             >
-              <option value="consultation">Consultation</option>
-              <option value="follow_up">Follow-up</option>
-              <option value="therapy">Therapy Session</option>
-              <option value="emergency">Emergency</option>
+              <option key="appt-type-consultation" value="consultation">Consultation</option>
+              <option key="appt-type-follow-up" value="follow_up">Follow-up</option>
+              <option key="appt-type-therapy" value="therapy">Therapy Session</option>
+              <option key="appt-type-emergency" value="emergency">Emergency</option>
             </select>
           </div>
 
@@ -192,34 +230,21 @@ const BookAppointment = () => {
               onChange={handleChange}
               required
             >
-              <option value="in_person">In-Person</option>
-              <option value="video">Video Call</option>
-              <option value="phone">Phone Call</option>
+              <option key="mode-in-person" value="in_person">In-Person</option>
+              <option key="mode-video" value="video">Video Call</option>
+              <option key="mode-phone" value="phone">Phone Call</option>
             </select>
           </div>
 
           <div className="form-group">
-            <label htmlFor="reason">Reason for Visit *</label>
-            <input
-              type="text"
-              id="reason"
-              name="reason"
-              value={formData.reason}
-              onChange={handleChange}
-              placeholder="e.g., Anxiety management, Follow-up session"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="notes">Additional Notes (Optional)</label>
+            <label htmlFor="notes">Reason for Visit & Notes (Optional)</label>
             <textarea
               id="notes"
               name="notes"
               value={formData.notes}
               onChange={handleChange}
               rows="4"
-              placeholder="Any additional information you'd like to share..."
+              placeholder="e.g., Anxiety management, Follow-up session, or any additional information you'd like to share..."
             />
           </div>
 

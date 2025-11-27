@@ -44,7 +44,7 @@ const FindTherapist = () => {
   };
 
   const handleBookAppointment = (doctor) => {
-    navigate(`/appointments/new?doctorId=${doctor.user_id}&doctorName=${doctor.first_name} ${doctor.last_name}`);
+    navigate(`/appointments/new?doctorId=${doctor.id}&doctorName=${doctor.first_name} ${doctor.last_name}`);
   };
 
   return (
@@ -123,7 +123,7 @@ const FindTherapist = () => {
         ) : doctors.length > 0 ? (
           <div className="therapists-grid">
             {doctors.map((doctor) => (
-              <div key={doctor.user_id} className="therapist-card">
+              <div key={doctor.id} className="therapist-card">
                 <div className="therapist-header">
                   <div className="therapist-avatar">
                     {doctor.profile_picture ? (

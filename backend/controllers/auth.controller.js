@@ -51,9 +51,11 @@ const register = async (req, res) => {
         );
       } else if (role === 'doctor') {
         // Doctor profile will be completed separately and needs approval
+        // Generate unique temporary license number to avoid duplicate key error
+        const tempLicenseNumber = `PENDING_${userId}_${Date.now()}`;
         await connection.execute(
           'INSERT INTO doctor_profiles (user_id, license_number, specialization, is_approved) VALUES (?, ?, ?, ?)',
-          [userId, 'PENDING', 'Not Specified', false]
+          [userId, tempLicenseNumber, 'Not Specified', false]
         );
       }
 
@@ -355,10 +357,62 @@ const changePassword = async (req, res) => {
   }
 };
 
+// Delete user profile
+const deleteProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const role = req.user.role;
+    const { password } = req.body;
+
+    // Get current password hash to verify
+    const users = await query(
+      'SELECT password_hash FROM users WHERE id = ?',
+      [userId]
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Verify password for security
+    const isPasswordValid = await bcrypt.compare(password, users[0].password_hash);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        message: 'Incorrect password. Profile deletion cancelled.'
+      });
+    }
+
+    // Soft delete - deactivate account instead of hard delete to preserve data integrity
+    await query(
+      'UPDATE users SET is_active = FALSE, updated_at = NOW() WHERE id = ?',
+      [userId]
+    );
+
+    res.json({
+      success: true,
+      message: 'Profile deleted successfully. Your account has been deactivated.'
+    });
+  } catch (error) {
+    console.error('Delete profile error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete profile',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
   getProfile,
   updateProfile,
-  changePassword
+  changePassword,
+  deleteProfile
 };
+

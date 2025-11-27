@@ -22,6 +22,13 @@ const Navbar = () => {
     return '/';
   };
 
+  const getProfileLink = () => {
+    if (!user) return '/';
+    if (user.role === 'patient') return '/patient/profile';
+    if (user.role === 'doctor') return '/doctor/profile';
+    return '/';
+  };
+
   return (
     <nav className="navbar">
       <div className="nav-container">
@@ -46,6 +53,15 @@ const Navbar = () => {
               >
                 Dashboard
               </Link>
+              {(user?.role === 'patient' || user?.role === 'doctor') && (
+                <Link 
+                  to={getProfileLink()} 
+                  className="nav-link"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Profile
+                </Link>
+              )}
               <div className="nav-user">
                 <span className="user-name">
                   {user?.firstName} {user?.lastName}

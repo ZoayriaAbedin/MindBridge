@@ -43,6 +43,7 @@ export const authAPI = {
   getProfile: () => api.get('/auth/profile'),
   updateProfile: (data) => api.put('/auth/profile', data),
   changePassword: (data) => api.post('/auth/change-password', data),
+  deleteProfile: (data) => api.delete('/auth/profile', { data }),
 };
 
 // Doctors API
@@ -98,6 +99,8 @@ export const usersAPI = {
   }),
   deactivate: (id) => api.post(`/users/${id}/deactivate`),
   activate: (id) => api.post(`/users/${id}/activate`),
+  delete: (id) => api.delete(`/users/${id}`),
 };
 
 export default api;
+

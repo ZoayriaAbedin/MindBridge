@@ -127,4 +127,37 @@ router.post('/:id/activate', verifyToken, authorize('admin'), async (req, res) =
   }
 });
 
+// Delete user account (admin only) - soft delete
+router.delete('/:id', verifyToken, authorize('admin'), async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Prevent admin from deleting themselves
+    if (parseInt(id) === req.user.id) {
+      return res.status(400).json({
+        success: false,
+        message: 'You cannot delete your own account'
+      });
+    }
+
+    await query(
+      'UPDATE users SET is_active = FALSE, updated_at = NOW() WHERE id = ?',
+      [id]
+    );
+
+    res.json({
+      success: true,
+      message: 'User account deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete user',
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;
+

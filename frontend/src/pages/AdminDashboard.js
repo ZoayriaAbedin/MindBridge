@@ -145,6 +145,10 @@ const AdminDashboard = () => {
               <span className="icon">👨‍⚕️</span>
               <span>Manage Doctors</span>
             </Link>
+            <Link to="/admin/patients" className="action-btn">
+              <span className="icon">🤒</span>
+              <span>Manage Patients</span>
+            </Link>
             <Link to="/admin/appointments" className="action-btn">
               <span className="icon">📅</span>
               <span>Manage Appointments</span>

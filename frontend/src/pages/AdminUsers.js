@@ -25,6 +25,39 @@ const AdminUsers = () => {
     }
   };
 
+  const handleToggleStatus = async (userId, isActive) => {
+    if (!window.confirm(`Are you sure you want to ${isActive ? 'deactivate' : 'activate'} this user?`)) {
+      return;
+    }
+
+    try {
+      if (isActive) {
+        await usersAPI.deactivate(userId);
+      } else {
+        await usersAPI.activate(userId);
+      }
+      loadUsers();
+    } catch (error) {
+      console.error('Error toggling user status:', error);
+      alert('Failed to update user status');
+    }
+  };
+
+  const handleDeleteUser = async (userId, userName) => {
+    if (!window.confirm(`Are you sure you want to DELETE ${userName}? This will deactivate their account permanently.`)) {
+      return;
+    }
+
+    try {
+      await usersAPI.delete(userId);
+      loadUsers();
+      alert('User account deleted successfully');
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert(error.response?.data?.message || 'Failed to delete user');
+    }
+  };
+
   const getFilteredUsers = () => {
     let filtered = users;
 
@@ -114,6 +147,7 @@ const AdminUsers = () => {
                 <th>Verified</th>
                 <th>Joined</th>
                 <th>Last Login</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -144,6 +178,24 @@ const AdminUsers = () => {
                   </td>
                   <td>{formatDate(user.created_at)}</td>
                   <td>{user.last_login ? formatDate(user.last_login) : 'Never'}</td>
+                  <td>
+                    <div className="action-buttons">
+                      <button
+                        onClick={() => handleToggleStatus(user.id, user.is_active)}
+                        className={`btn btn-small ${user.is_active ? 'btn-warning' : 'btn-success'}`}
+                        title={user.is_active ? 'Deactivate' : 'Activate'}
+                      >
+                        {user.is_active ? '🔒' : '✓'}
+                      </button>
+                      <button
+                        onClick={() => handleDeleteUser(user.id, `${user.first_name} ${user.last_name}`)}
+                        className="btn btn-small btn-danger"
+                        title="Delete User"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>

@@ -1,0 +1,11 @@
+/* Shared styles are in AdminCommon.css and AdminDoctors.css */
+
+.status-active {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+.status-inactive {
+  color: #e74c3c;
+  font-weight: 600;
+}

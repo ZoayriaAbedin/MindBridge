@@ -14,21 +14,40 @@ const searchDoctors = async (req, res) => {
       longitude,
       radius = 50, // km
       page = 1,
-      limit = 10
+      limit = 10,
+      isApproved // Allow filtering by approval status
     } = req.query;
+
+    console.log('Search doctors - isApproved param:', isApproved);
 
     let sql = `
       SELECT 
         u.id, u.first_name, u.last_name, u.email, u.phone, u.profile_picture,
         dp.specialization, dp.qualifications, dp.experience_years, dp.bio,
         dp.consultation_fee, dp.city, dp.state, dp.latitude, dp.longitude,
-        dp.rating, dp.total_reviews, dp.is_approved
+        dp.rating, dp.total_reviews, dp.is_approved, dp.license_number, u.created_at
       FROM users u
       JOIN doctor_profiles dp ON u.id = dp.user_id
-      WHERE u.role = 'doctor' AND dp.is_approved = TRUE AND u.is_active = TRUE
+      WHERE u.role = 'doctor' AND u.is_active = TRUE
     `;
     
     const params = [];
+
+    // Filter by approval status
+    if (isApproved === 'true' || isApproved === true) {
+      sql += ' AND dp.is_approved = TRUE';
+      console.log('Filtering by: approved only');
+    } else if (isApproved === 'false' || isApproved === false) {
+      sql += ' AND dp.is_approved = FALSE';
+      console.log('Filtering by: pending only');
+    } else if (isApproved === '' || isApproved === undefined) {
+      // No filter - show all doctors (for admin)
+      console.log('No approval filter: showing all doctors');
+    } else {
+      // Default for unknown values: show approved only
+      sql += ' AND dp.is_approved = TRUE';
+      console.log('Default filter: approved only');
+    }
 
     // Filter by specialization
     if (specialization) {
@@ -111,6 +130,10 @@ const searchDoctors = async (req, res) => {
     }
 
     const [{ total }] = await query(countSql, countParams);
+
+    console.log(`Found ${doctors.length} doctors (total: ${total})`);
+    console.log('Pending doctors:', doctors.filter(d => !d.is_approved).length);
+    console.log('Approved doctors:', doctors.filter(d => d.is_approved).length);
 
     res.json({
       success: true,

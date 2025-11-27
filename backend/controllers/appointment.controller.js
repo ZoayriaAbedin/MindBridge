@@ -149,6 +149,9 @@ const getAppointment = async (req, res) => {
 // Create appointment
 const createAppointment = async (req, res) => {
   try {
+    console.log('Create appointment - Request body:', req.body);
+    console.log('Create appointment - User:', { id: req.user.id, role: req.user.role });
+    
     const patientId = req.user.id;
     const { doctorId, appointmentDate, appointmentTime, appointmentType, meetingMode, notes } = req.body;
 

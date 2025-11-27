@@ -8,6 +8,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import PatientDashboard from './pages/PatientDashboard';
+import PatientProfile from './pages/PatientProfile';
 import FindTherapist from './pages/FindTherapist';
 import BookAppointment from './pages/BookAppointment';
 import SupportGroups from './pages/SupportGroups';
@@ -23,6 +24,7 @@ import DoctorEarnings from './pages/DoctorEarnings';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminUsers from './pages/AdminUsers';
 import AdminDoctors from './pages/AdminDoctors';
+import AdminPatients from './pages/AdminPatients';
 import AdminAppointments from './pages/AdminAppointments';
 import AdminSalary from './pages/AdminSalary';
 import './App.css';
@@ -47,6 +49,14 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={['patient']}>
                     <PatientDashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/patient/profile"
+                element={
+                  <PrivateRoute allowedRoles={['patient']}>
+                    <PatientProfile />
                   </PrivateRoute>
                 }
               />
@@ -171,6 +181,14 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={['admin']}>
                     <AdminDoctors />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/patients"
+                element={
+                  <PrivateRoute allowedRoles={['admin']}>
+                    <AdminPatients />
                   </PrivateRoute>
                 }
               />

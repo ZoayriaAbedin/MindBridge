@@ -1,0 +1,85 @@
+.delete-modal {
+  max-width: 500px;
+}
+
+.warning-message {
+  background-color: #fff3cd;
+  border: 2px solid #ffc107;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.warning-message p {
+  margin: 0.5rem 0;
+}
+
+.warning-message ul {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.warning-message li {
+  margin: 0.25rem 0;
+}
+
+.warning-message strong {
+  color: #856404;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+.btn-danger:disabled {
+  background-color: #e4606d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.delete-modal .modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+.delete-modal .form-group {
+  margin-bottom: 1rem;
+}
+
+.delete-modal label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.delete-modal input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.delete-modal input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.delete-modal input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
