@@ -167,7 +167,7 @@ const FindTherapist = () => {
 
                 <div className="therapist-actions">
                   <Link 
-                    to={`/doctors/${doctor.user_id}`} 
+                    to={`/doctors/${doctor.id}`} 
                     className="btn btn-secondary"
                   >
                     View Profile

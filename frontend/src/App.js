@@ -23,6 +23,7 @@ import DoctorAppointments from './pages/DoctorAppointments';
 import DoctorPatients from './pages/DoctorPatients';
 import DoctorSchedule from './pages/DoctorSchedule';
 import DoctorEarnings from './pages/DoctorEarnings';
+import DoctorPublicProfile from './pages/DoctorPublicProfile';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminUsers from './pages/AdminUsers';
 import AdminDoctors from './pages/AdminDoctors';
@@ -67,6 +68,14 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={['patient']}>
                     <FindTherapist />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/doctors/:id"
+                element={
+                  <PrivateRoute allowedRoles={['patient']}>
+                    <DoctorPublicProfile />
                   </PrivateRoute>
                 }
               />
