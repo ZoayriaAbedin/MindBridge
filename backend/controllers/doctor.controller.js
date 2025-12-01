@@ -24,8 +24,9 @@ const searchDoctors = async (req, res) => {
       SELECT 
         u.id, u.first_name, u.last_name, u.email, u.phone, u.profile_picture,
         dp.specialization, dp.qualifications, dp.experience_years, dp.bio,
-        dp.consultation_fee, dp.city, dp.state, dp.latitude, dp.longitude,
-        dp.rating, dp.total_reviews, dp.is_approved, dp.license_number, u.created_at
+        dp.consultation_fee, dp.base_salary, dp.total_bonus, dp.city, dp.state, 
+        dp.latitude, dp.longitude, dp.rating, dp.total_reviews, dp.is_approved, 
+        dp.license_number, u.created_at
       FROM users u
       JOIN doctor_profiles dp ON u.id = dp.user_id
       WHERE u.role = 'doctor' AND u.is_active = TRUE

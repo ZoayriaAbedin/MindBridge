@@ -100,6 +100,8 @@ export const usersAPI = {
   deactivate: (id) => api.post(`/users/${id}/deactivate`),
   activate: (id) => api.post(`/users/${id}/activate`),
   delete: (id) => api.delete(`/users/${id}`),
+  updateSalary: (id, baseSalary) => api.put(`/users/${id}/salary`, { baseSalary }),
+  giveBonus: (id, bonusAmount, reason) => api.post(`/users/${id}/bonus`, { bonusAmount, reason }),
 };
 
 // Assessments API

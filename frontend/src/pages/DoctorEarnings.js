@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { appointmentsAPI } from '../services/api';
+import { appointmentsAPI, authAPI } from '../services/api';
 import './DoctorEarnings.css';
 
 const DoctorEarnings = () => {
@@ -8,6 +8,8 @@ const DoctorEarnings = () => {
     thisWeek: 0,
     thisMonth: 0,
     total: 0,
+    baseSalary: 0,
+    totalBonus: 0,
   });
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,11 +22,18 @@ const DoctorEarnings = () => {
   const loadEarnings = async () => {
     try {
       setLoading(true);
-      const response = await appointmentsAPI.getAll({ 
-        role: 'doctor',
-        status: 'completed'
-      });
-      const completedAppointments = response.data.data || [];
+      
+      // Fetch appointments and profile in parallel
+      const [appointmentsRes, profileRes] = await Promise.all([
+        appointmentsAPI.getAll({ role: 'doctor', status: 'completed' }),
+        authAPI.getProfile()
+      ]);
+      
+      const completedAppointments = appointmentsRes.data.data || [];
+      const profile = profileRes.data.data?.profile || {};
+      
+      const baseSalary = parseFloat(profile.base_salary) || 0;
+      const totalBonus = parseFloat(profile.total_bonus) || 0;
       
       const now = new Date();
       const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -43,14 +52,16 @@ const DoctorEarnings = () => {
         .filter(apt => new Date(apt.appointment_date) >= monthStart)
         .reduce((sum, apt) => sum + (parseFloat(apt.consultation_fee) || 0), 0);
 
-      const totalEarnings = completedAppointments
+      const appointmentsTotal = completedAppointments
         .reduce((sum, apt) => sum + (parseFloat(apt.consultation_fee) || 0), 0);
 
       setEarnings({
         today: todayEarnings,
         thisWeek: weekEarnings,
         thisMonth: monthEarnings,
-        total: totalEarnings,
+        total: appointmentsTotal + baseSalary + totalBonus,
+        baseSalary,
+        totalBonus,
       });
 
       setAppointments(completedAppointments);
@@ -123,6 +134,43 @@ const DoctorEarnings = () => {
           <div className="summary-amount">${earnings.total.toFixed(2)}</div>
         </div>
       </div>
+
+      {/* Compensation Breakdown */}
+      {(earnings.baseSalary > 0 || earnings.totalBonus > 0) && (
+        <div className="compensation-breakdown">
+          <h2>💰 Compensation Breakdown</h2>
+          <div className="breakdown-grid">
+            <div className="breakdown-item">
+              <span className="breakdown-label">Appointments Revenue:</span>
+              <span className="breakdown-value">
+                ${(earnings.total - earnings.baseSalary - earnings.totalBonus).toFixed(2)}
+              </span>
+            </div>
+            {earnings.baseSalary > 0 && (
+              <div className="breakdown-item">
+                <span className="breakdown-label">Base Salary:</span>
+                <span className="breakdown-value salary">
+                  ${earnings.baseSalary.toFixed(2)}
+                </span>
+              </div>
+            )}
+            {earnings.totalBonus > 0 && (
+              <div className="breakdown-item">
+                <span className="breakdown-label">Total Bonuses:</span>
+                <span className="breakdown-value bonus">
+                  ${earnings.totalBonus.toFixed(2)}
+                </span>
+              </div>
+            )}
+            <div className="breakdown-item total">
+              <span className="breakdown-label">Total Compensation:</span>
+              <span className="breakdown-value">
+                ${earnings.total.toFixed(2)}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Filter Section */}
       <div className="filter-section">

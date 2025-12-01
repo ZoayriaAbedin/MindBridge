@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { authAPI, usersAPI } from '../services/api';
+import { authAPI, usersAPI, appointmentsAPI } from '../services/api';
 import DeleteAccountModal from '../components/DeleteAccountModal';
 import './DoctorProfile.css';
 
@@ -30,6 +30,9 @@ const DoctorProfile = () => {
     zipCode: '',
     country: 'USA',
     isApproved: false,
+    baseSalary: 0,
+    totalBonus: 0,
+    appointmentsRevenue: 0,
   });
 
   useEffect(() => {
@@ -38,8 +41,21 @@ const DoctorProfile = () => {
 
   const loadProfile = async () => {
     try {
-      const response = await authAPI.getProfile();
-      const profile = response.data.data;
+      // Fetch profile and appointments in parallel
+      const [profileRes, appointmentsRes] = await Promise.all([
+        authAPI.getProfile(),
+        appointmentsAPI.getAll({ role: 'doctor', status: 'completed' })
+      ]);
+      
+      const profile = profileRes.data.data;
+      const completedAppointments = appointmentsRes.data.data || [];
+      
+      // Calculate total revenue from appointments
+      const appointmentsRevenue = completedAppointments.reduce(
+        (sum, apt) => sum + (parseFloat(apt.consultation_fee) || 0),
+        0
+      );
+      
       setProfileData({
         firstName: profile.first_name || '',
         lastName: profile.last_name || '',
@@ -57,6 +73,9 @@ const DoctorProfile = () => {
         zipCode: profile.profile?.zip_code || '',
         country: profile.profile?.country || 'USA',
         isApproved: profile.profile?.is_approved || false,
+        baseSalary: parseFloat(profile.profile?.base_salary) || 0,
+        totalBonus: parseFloat(profile.profile?.total_bonus) || 0,
+        appointmentsRevenue,
       });
     } catch (error) {
       console.error('Error loading profile:', error);

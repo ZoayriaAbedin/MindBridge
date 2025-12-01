@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { doctorsAPI, appointmentsAPI } from '../services/api';
+import { doctorsAPI, appointmentsAPI, usersAPI } from '../services/api';
 import './AdminSalary.css';
 import './AdminCommon.css';
 
@@ -43,7 +43,8 @@ const AdminSalary = () => {
           ...doctor,
           totalEarnings,
           sessionCount,
-          bonus: doctor.bonus || 0, // From database if stored
+          bonus: parseFloat(doctor.total_bonus) || 0,
+          base_salary: parseFloat(doctor.base_salary) || 0,
         };
       });
 
@@ -70,37 +71,42 @@ const AdminSalary = () => {
     }
 
     try {
-      // In a real app, you'd have an API endpoint to save bonus
-      // For now, we'll just update locally and show success
-      const updatedDoctors = doctors.map(d => 
-        d.id === selectedDoctor.id
-          ? { ...d, bonus: (d.bonus || 0) + parseFloat(bonusAmount) }
-          : d
-      );
+      // Save bonus to database
+      await usersAPI.giveBonus(selectedDoctor.id, parseFloat(bonusAmount), bonusReason);
       
-      setDoctors(updatedDoctors);
+      // Reload data to get updated values
+      await loadData();
+      
       setShowBonusModal(false);
       alert(`Bonus of $${bonusAmount} given to Dr. ${selectedDoctor.first_name} ${selectedDoctor.last_name}`);
     } catch (error) {
       console.error('Error giving bonus:', error);
-      alert('Failed to give bonus');
+      alert(error.response?.data?.message || 'Failed to give bonus');
     }
   };
 
   const handleAdjustSalary = async (doctor) => {
-    const adjustment = prompt(`Enter salary adjustment (% or $) for Dr. ${doctor.first_name} ${doctor.last_name}:`);
-    if (!adjustment) return;
+    const currentSalary = doctor.base_salary || 0;
+    const newSalary = prompt(`Enter base salary for Dr. ${doctor.first_name} ${doctor.last_name}:`, currentSalary);
+    if (!newSalary || newSalary === currentSalary.toString()) return;
 
-    const newFee = prompt(`New consultation fee for Dr. ${doctor.first_name} ${doctor.last_name}:`, doctor.consultation_fee);
-    if (!newFee) return;
+    const parsedSalary = parseFloat(newSalary);
+    if (isNaN(parsedSalary) || parsedSalary < 0) {
+      alert('Please enter a valid salary amount');
+      return;
+    }
 
     try {
-      // In real app, update via API
-      alert(`Consultation fee updated to $${newFee} for Dr. ${doctor.first_name} ${doctor.last_name}`);
-      loadData();
+      // Save salary to database
+      await usersAPI.updateSalary(doctor.id, parsedSalary);
+      
+      // Reload data to get updated values
+      await loadData();
+      
+      alert(`Base salary updated to $${parsedSalary} for Dr. ${doctor.first_name} ${doctor.last_name}`);
     } catch (error) {
       console.error('Error adjusting salary:', error);
-      alert('Failed to adjust salary');
+      alert(error.response?.data?.message || 'Failed to adjust salary');
     }
   };
 
@@ -109,7 +115,7 @@ const AdminSalary = () => {
   };
 
   const getTotalDoctorEarnings = () => {
-    return doctors.reduce((sum, d) => sum + d.totalEarnings, 0);
+    return doctors.reduce((sum, d) => sum + d.totalEarnings + (d.base_salary || 0) + (d.bonus || 0), 0);
   };
 
   const getTotalBonuses = () => {
@@ -175,7 +181,8 @@ const AdminSalary = () => {
               <th>Specialization</th>
               <th>Sessions</th>
               <th>Consultation Fee</th>
-              <th>Total Earnings</th>
+              <th>Appointments Revenue</th>
+              <th>Base Salary</th>
               <th>Bonuses</th>
               <th>Total Compensation</th>
               <th>Actions</th>
@@ -193,9 +200,10 @@ const AdminSalary = () => {
                 <td className="sessions-count">{doctor.sessionCount}</td>
                 <td className="fee-column">${doctor.consultation_fee || 0}</td>
                 <td className="earnings-column">${doctor.totalEarnings.toFixed(2)}</td>
+                <td className="salary-column">${(doctor.base_salary || 0).toFixed(2)}</td>
                 <td className="bonus-column">${(doctor.bonus || 0).toFixed(2)}</td>
                 <td className="total-column">
-                  <strong>${(doctor.totalEarnings + (doctor.bonus || 0)).toFixed(2)}</strong>
+                  <strong>${(doctor.totalEarnings + (doctor.base_salary || 0) + (doctor.bonus || 0)).toFixed(2)}</strong>
                 </td>
                 <td>
                   <div className="action-buttons">
@@ -209,7 +217,7 @@ const AdminSalary = () => {
                       onClick={() => handleAdjustSalary(doctor)}
                       className="btn btn-primary btn-sm"
                     >
-                      Adjust Fee
+                      Set Base Salary
                     </button>
                   </div>
                 </td>
