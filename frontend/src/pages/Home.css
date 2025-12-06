@@ -7,11 +7,13 @@
 /* Hero Section with Parallax */
 .hero {
   position: relative;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
   color: white;
   padding: 140px 20px 120px;
   text-align: center;
   overflow: hidden;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .hero::before {

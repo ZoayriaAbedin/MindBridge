@@ -1,15 +1,19 @@
 .messages-container {
   display: flex;
-  height: calc(100vh - 80px);
+  height: calc(100vh - 120px);
   max-width: 1400px;
-  margin: 0 auto;
-  background: #f5f7fa;
+  margin: 20px auto;
+  background: rgba(245, 247, 250, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 
 .messages-sidebar {
   width: 350px;
-  background: white;
-  border-right: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.7);
+  border-right: 1px solid rgba(226, 232, 240, 0.5);
   display: flex;
   flex-direction: column;
 }
@@ -140,13 +144,13 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: white;
+  background: rgba(255, 255, 255, 0.6);
 }
 
 .chat-header {
   padding: 20px;
-  border-bottom: 1px solid #e2e8f0;
-  background: white;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .chat-user-info {
