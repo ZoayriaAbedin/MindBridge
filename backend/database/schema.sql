@@ -230,3 +230,20 @@ CREATE TABLE support_group_members (
     INDEX idx_user (user_id),
     INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Assessment history table - Store mental health assessment results
+CREATE TABLE assessment_history (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    assessment_type VARCHAR(50) NOT NULL,
+    assessment_name VARCHAR(100) NOT NULL,
+    score INT NOT NULL,
+    max_score INT NOT NULL,
+    severity VARCHAR(50),
+    answers JSON,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_user (user_id),
+    INDEX idx_type (assessment_type),
+    INDEX idx_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
