@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { doctorsAPI, appointmentsAPI } from '../services/api';
+import { appointmentsAPI as appointmentAvailability } from '../services/messaging';
 import './BookAppointment.css';
 
 const BookAppointment = () => {
@@ -11,6 +12,11 @@ const BookAppointment = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [availableDates, setAvailableDates] = useState([]);
+  const [availableSlots, setAvailableSlots] = useState([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+  const [suggestedTime, setSuggestedTime] = useState('');
+  const availableDateSet = new Set(availableDates);
   
   const preselectedDoctorId = searchParams.get('doctorId');
   const preselectedDoctorName = searchParams.get('doctorName');
@@ -35,8 +41,57 @@ const BookAppointment = () => {
         ...prev,
         doctorId: preselectedDoctorId
       }));
+      loadAvailableDates(preselectedDoctorId);
     }
   }, [preselectedDoctorId]);
+
+  useEffect(() => {
+    // Load available slots when doctor and date are selected
+    if (formData.doctorId && formData.appointmentDate) {
+      loadAvailableSlots(formData.doctorId, formData.appointmentDate);
+    }
+  }, [formData.doctorId, formData.appointmentDate]);
+
+  const loadAvailableDates = async (doctorId) => {
+    try {
+      const response = await appointmentAvailability.getAvailableDates(doctorId);
+      if (response.data.success) {
+        setAvailableDates(response.data.availableDates || []);
+      }
+    } catch (error) {
+      console.error('Error loading available dates:', error);
+    }
+  };
+
+  const loadAvailableSlots = async (doctorId, date) => {
+    try {
+      setLoadingSlots(true);
+      const response = await appointmentAvailability.getAvailableSlots(doctorId, date);
+      if (response.data.success) {
+        const slots = response.data.availableSlots || [];
+        setAvailableSlots(slots);
+        
+        // Auto-suggest first available time
+        if (slots.length > 0) {
+          setSuggestedTime(slots[0]);
+          setFormData(prev => ({
+            ...prev,
+            appointmentTime: slots[0]
+          }));
+        } else {
+          setSuggestedTime('');
+          setFormData(prev => ({
+            ...prev,
+            appointmentTime: ''
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('Error loading available slots:', error);
+    } finally {
+      setLoadingSlots(false);
+    }
+  };
 
   const loadDoctors = async () => {
     try {
@@ -55,11 +110,122 @@ const BookAppointment = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     console.log('Form field changed:', name, '=', value);
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    
+    // If doctor changes, load their available dates
+    if (name === 'doctorId') {
+      setFormData({
+        ...formData,
+        [name]: value,
+        appointmentDate: '', // Reset date
+        appointmentTime: '' // Reset time
+      });
+      if (value) {
+        loadAvailableDates(value);
+      } else {
+        setAvailableDates([]);
+        setAvailableSlots([]);
+      }
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
     setError('');
+  };
+
+  const handleDateClick = (dateStr, isAvailable) => {
+    if (!isAvailable) return;
+    setFormData((prev) => ({
+      ...prev,
+      appointmentDate: dateStr,
+      appointmentTime: ''
+    }));
+    setSuggestedTime('');
+  };
+
+  const renderCalendar = () => {
+    const today = new Date();
+    const days = [];
+
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      const dateStr = d.toISOString().split('T')[0];
+      const monthKey = `${d.getFullYear()}-${d.getMonth()}`;
+      days.push({
+        date: d,
+        dateStr,
+        day: d.getDate(),
+        weekday: d.getDay(),
+        monthKey,
+        available: availableDateSet.has(dateStr)
+      });
+    }
+
+    const grouped = days.reduce((acc, day) => {
+      acc[day.monthKey] = acc[day.monthKey] || [];
+      acc[day.monthKey].push(day);
+      return acc;
+    }, {});
+
+    const weekdayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    return Object.entries(grouped).map(([monthKey, monthDays]) => {
+      const [year, monthIndex] = monthKey.split('-').map(Number);
+      const monthLabel = new Date(year, monthIndex).toLocaleString('en-US', {
+        month: 'long',
+        year: 'numeric'
+      });
+
+      // Align first day of the month in grid
+      const leadingBlanks = monthDays[0].date.getDay();
+      const cells = [];
+      for (let i = 0; i < leadingBlanks; i++) {
+        cells.push({ empty: true, id: `lead-${monthKey}-${i}` });
+      }
+      monthDays.forEach((d) => cells.push(d));
+      while (cells.length % 7 !== 0) {
+        cells.push({ empty: true, id: `trail-${monthKey}-${cells.length}` });
+      }
+
+      return (
+        <div className="calendar-month" key={monthKey}>
+          <div className="calendar-header">{monthLabel}</div>
+          <div className="calendar-weekdays">
+            {weekdayLabels.map((w) => (
+              <div key={w} className="calendar-weekday">{w}</div>
+            ))}
+          </div>
+          <div className="calendar-grid">
+            {cells.map((cell, idx) => {
+              if (cell.empty) {
+                return <div className="calendar-cell empty" key={cell.id} />;
+              }
+              const isSelected = formData.appointmentDate === cell.dateStr;
+              const classes = [
+                'calendar-cell',
+                'day',
+                cell.available ? 'available' : 'unavailable',
+                isSelected ? 'selected' : ''
+              ].join(' ');
+              return (
+                <button
+                  type="button"
+                  key={`${cell.dateStr}-${idx}`}
+                  className={classes}
+                  onClick={() => handleDateClick(cell.dateStr, cell.available)}
+                  disabled={!cell.available}
+                  aria-label={cell.dateStr}
+                >
+                  <span className="day-number">{cell.day}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      );
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -171,7 +337,7 @@ const BookAppointment = () => {
                 {doctors.map((doctor) => (
                   <option key={`doctor-${doctor.id}`} value={doctor.id}>
                     Dr. {doctor.first_name} {doctor.last_name} - {doctor.specialization}
-                    {doctor.consultation_fee && ` ($${doctor.consultation_fee})`}
+                    {doctor.consultation_fee && ` (৳${doctor.consultation_fee})`}
                   </option>
                 ))}
               </select>
@@ -181,27 +347,87 @@ const BookAppointment = () => {
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="appointmentDate">Date *</label>
-              <input
-                type="date"
-                id="appointmentDate"
-                name="appointmentDate"
-                value={formData.appointmentDate}
-                onChange={handleChange}
-                min={minDate}
-                required
-              />
+              {formData.doctorId && availableDates.length > 0 ? (
+                <div className="calendar-wrapper">
+                  {renderCalendar()}
+                  {!formData.appointmentDate && (
+                    <small className="form-hint">Tap a highlighted date to continue</small>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <input
+                    type="date"
+                    id="appointmentDate"
+                    name="appointmentDate"
+                    value={formData.appointmentDate}
+                    onChange={handleChange}
+                    min={minDate}
+                    required
+                    disabled={!formData.doctorId}
+                    title={!formData.doctorId ? 'Please select a doctor first' : ''}
+                  />
+                  {formData.doctorId && availableDates.length === 0 && (
+                    <small className="form-hint">Doctor has not set availability schedule</small>
+                  )}
+                </>
+              )}
             </div>
 
             <div className="form-group">
               <label htmlFor="appointmentTime">Time *</label>
-              <input
-                type="time"
-                id="appointmentTime"
-                name="appointmentTime"
-                value={formData.appointmentTime}
-                onChange={handleChange}
-                required
-              />
+              {loadingSlots ? (
+                <input
+                  type="text"
+                  value="Loading available times..."
+                  disabled
+                  className="loading-input"
+                />
+              ) : availableSlots.length > 0 ? (
+                <>
+                  <select
+                    id="appointmentTime"
+                    name="appointmentTime"
+                    value={formData.appointmentTime}
+                    onChange={handleChange}
+                    required
+                  >
+                    {availableSlots.map((time) => (
+                      <option key={time} value={time}>
+                        {time}
+                      </option>
+                    ))}
+                  </select>
+                  {suggestedTime && (
+                    <small className="form-hint success">
+                      ✓ Your appointment time: {suggestedTime}
+                    </small>
+                  )}
+                </>
+              ) : formData.appointmentDate ? (
+                <>
+                  <input
+                    type="text"
+                    value="Unavailable on this date"
+                    disabled
+                    className="unavailable-input"
+                  />
+                  <small className="form-hint error">
+                    No available time slots on this date. Please select another date.
+                  </small>
+                </>
+              ) : (
+                <input
+                  type="time"
+                  id="appointmentTime"
+                  name="appointmentTime"
+                  value={formData.appointmentTime}
+                  onChange={handleChange}
+                  required
+                  disabled={!formData.appointmentDate}
+                  title={!formData.appointmentDate ? 'Please select a date first' : ''}
+                />
+              )}
             </div>
           </div>
 

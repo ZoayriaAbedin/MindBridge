@@ -11,6 +11,12 @@ router.use(verifyToken);
 // Get all appointments (filtered by user role)
 router.get('/', appointmentController.getAppointments);
 
+// Get available time slots for a doctor on a specific date
+router.get('/available-slots', appointmentController.getAvailableSlots);
+
+// Get doctor's available dates
+router.get('/available-dates/:doctorId', appointmentController.getAvailableDates);
+
 // Get single appointment
 router.get('/:id', validateId, appointmentController.getAppointment);
 

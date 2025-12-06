@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { appointmentsAPI, medicalHistoryAPI } from '../services/api';
+import messagingAPI from '../services/messaging';
+import { assessmentsAPI } from '../services/api';
 import './DoctorAppointments.css';
 
 const DoctorAppointments = () => {
@@ -8,13 +10,8 @@ const DoctorAppointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
-  const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [patientHistory, setPatientHistory] = useState(null);
-
-  useEffect(() => {
-    loadAppointments();
-  }, [filter]);
 
   const loadAppointments = async () => {
     try {
@@ -32,20 +29,41 @@ const DoctorAppointments = () => {
     }
   };
 
+  useEffect(() => {
+    loadAppointments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter]);
+
   const handleViewPatientHistory = async (appointment) => {
     try {
-      const response = await medicalHistoryAPI.getByPatient(appointment.patient_id);
+      setLoading(true);
+      // Fetch medical history
+      const historyResponse = await medicalHistoryAPI.getByPatient(appointment.patient_id);
+      
+      // Fetch assessment history for the specific patient
+      let assessments = [];
+      try {
+        const assessmentResponse = await assessmentsAPI.getHistory({ patientId: appointment.patient_id });
+        assessments = assessmentResponse.data?.data || assessmentResponse.data || [];
+      } catch (err) {
+        console.log('No assessments found:', err);
+      }
+
       setPatientHistory({
         patient: {
           name: `${appointment.patient_first_name} ${appointment.patient_last_name}`,
           id: appointment.patient_id,
+          email: appointment.patient_email,
         },
-        records: response.data.data || [],
+        records: historyResponse.data?.data || historyResponse.data || [],
+        assessments: assessments,
       });
       setShowModal(true);
     } catch (error) {
       console.error('Error loading patient history:', error);
-      alert('Failed to load patient history');
+      alert(error.response?.data?.message || 'Failed to load patient history');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -65,11 +83,6 @@ const DoctorAppointments = () => {
       console.error('Error cancelling appointment:', error);
       alert(error.response?.data?.message || 'Failed to cancel appointment');
     }
-  };
-
-  const handleReschedule = (appointment) => {
-    setSelectedAppointment(appointment);
-    navigate(`/doctor/appointments/${appointment.id}/reschedule`);
   };
 
   const handleCompleteAppointment = async (appointmentId) => {
@@ -158,7 +171,7 @@ const DoctorAppointments = () => {
                   </span>
                 </div>
                 <div className="appointment-fee">
-                  ${apt.consultation_fee || 0}
+                  ৳{apt.consultation_fee || 0}
                 </div>
               </div>
 
@@ -187,6 +200,30 @@ const DoctorAppointments = () => {
 
               <div className="appointment-actions">
                 <button
+                  onClick={async () => {
+                    try {
+                      const response = await messagingAPI.getOrCreateConversationWithPatient(apt.patient_id);
+                      const conversation = {
+                        id: response.data.id,
+                        patient_id: response.data.patient_id,
+                        doctor_id: response.data.doctor_id,
+                        other_user_id: apt.patient_id,
+                        other_user_name: `${apt.patient_first_name} ${apt.patient_last_name}`,
+                        other_user_role: 'patient'
+                      };
+                      navigate('/messages', { 
+                        state: { selectedConversation: conversation } 
+                      });
+                    } catch (error) {
+                      console.error('Error starting conversation:', error);
+                      alert('Failed to start conversation. Please try again.');
+                    }
+                  }}
+                  className="btn btn-outline"
+                >
+                  💬 Message Patient
+                </button>
+                <button
                   onClick={() => handleViewPatientHistory(apt)}
                   className="btn btn-secondary"
                 >
@@ -200,12 +237,6 @@ const DoctorAppointments = () => {
                       className="btn btn-success"
                     >
                       Mark Completed
-                    </button>
-                    <button
-                      onClick={() => handleReschedule(apt)}
-                      className="btn btn-primary"
-                    >
-                      Reschedule
                     </button>
                     <button
                       onClick={() => handleCancelAppointment(apt.id)}
@@ -229,42 +260,77 @@ const DoctorAppointments = () => {
       {/* Patient History Modal */}
       {showModal && patientHistory && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content patient-history-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Patient History: {patientHistory.patient.name}</h2>
+              <div>
+                <h2>Medical History - {patientHistory.patient.name}</h2>
+                <p className="patient-email">{patientHistory.patient.email}</p>
+              </div>
               <button className="close-btn" onClick={() => setShowModal(false)}>
                 ×
               </button>
             </div>
             <div className="modal-body">
-              {patientHistory.records.length > 0 ? (
-                <div className="history-records">
-                  {patientHistory.records.map((record) => (
-                    <div key={record.id} className="history-record">
-                      <div className="record-header">
-                        <h4>{record.condition_name}</h4>
-                        <span className={`severity severity-${record.severity}`}>
-                          {record.severity}
-                        </span>
+              {/* Medical Conditions */}
+              <div className="history-section">
+                <h3>📋 Medical Conditions</h3>
+                {patientHistory.records.length > 0 ? (
+                  <div className="history-records">
+                    {patientHistory.records.map((record) => (
+                      <div key={record.id} className="history-record">
+                        <div className="record-header">
+                          <h4>{record.condition_name}</h4>
+                          <span className={`severity severity-${record.severity}`}>
+                            {record.severity}
+                          </span>
+                        </div>
+                        <div className="record-details">
+                          {record.diagnosis_date && (
+                            <p><strong>Diagnosed:</strong> {new Date(record.diagnosis_date).toLocaleDateString()}</p>
+                          )}
+                          <p><strong>Status:</strong> <span className="status-badge">{record.status}</span></p>
+                          {record.symptoms && (
+                            <p><strong>Symptoms:</strong> {record.symptoms}</p>
+                          )}
+                          {record.notes && (
+                            <p><strong>Notes:</strong> {record.notes}</p>
+                          )}
+                        </div>
                       </div>
-                      <div className="record-details">
-                        {record.diagnosis_date && (
-                          <p><strong>Diagnosed:</strong> {new Date(record.diagnosis_date).toLocaleDateString()}</p>
-                        )}
-                        <p><strong>Status:</strong> {record.status}</p>
-                        {record.symptoms && (
-                          <p><strong>Symptoms:</strong> {record.symptoms}</p>
-                        )}
-                        {record.notes && (
-                          <p><strong>Notes:</strong> {record.notes}</p>
-                        )}
+                    ))}
+                  </div>
+                ) : (
+                  <p className="no-data">No medical conditions recorded</p>
+                )}
+              </div>
+
+              {/* Assessment History */}
+              <div className="history-section">
+                <h3>🧠 Mental Health Assessments</h3>
+                {patientHistory.assessments && patientHistory.assessments.length > 0 ? (
+                  <div className="assessments-grid">
+                    {patientHistory.assessments.map((assessment, index) => (
+                      <div key={index} className="assessment-card">
+                        <div className="assessment-header">
+                          <h4>{assessment.assessment_name}</h4>
+                          <span className={`severity-badge ${assessment.severity?.toLowerCase()}`}>
+                            {assessment.severity || 'N/A'}
+                          </span>
+                        </div>
+                        <div className="assessment-score">
+                          <span className="score">{assessment.score}</span>
+                          <span className="max-score">/ {assessment.max_score}</span>
+                        </div>
+                        <p className="assessment-date">
+                          {new Date(assessment.created_at).toLocaleDateString()}
+                        </p>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="no-history">No medical history recorded for this patient</p>
-              )}
+                    ))}
+                  </div>
+                ) : (
+                  <p className="no-data">No assessments completed</p>
+                )}
+              </div>
             </div>
           </div>
         </div>

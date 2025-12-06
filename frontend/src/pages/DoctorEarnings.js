@@ -116,22 +116,22 @@ const DoctorEarnings = () => {
       <div className="earnings-summary">
         <div className="summary-card">
           <div className="summary-label">Today</div>
-          <div className="summary-amount">${earnings.today.toFixed(2)}</div>
+          <div className="summary-amount">৳{earnings.today.toFixed(2)}</div>
         </div>
 
         <div className="summary-card">
           <div className="summary-label">This Week</div>
-          <div className="summary-amount">${earnings.thisWeek.toFixed(2)}</div>
+          <div className="summary-amount">৳{earnings.thisWeek.toFixed(2)}</div>
         </div>
 
         <div className="summary-card">
           <div className="summary-label">This Month</div>
-          <div className="summary-amount">${earnings.thisMonth.toFixed(2)}</div>
+          <div className="summary-amount">৳{earnings.thisMonth.toFixed(2)}</div>
         </div>
 
         <div className="summary-card highlight">
           <div className="summary-label">Total Earnings</div>
-          <div className="summary-amount">${earnings.total.toFixed(2)}</div>
+          <div className="summary-amount">৳{earnings.total.toFixed(2)}</div>
         </div>
       </div>
 
@@ -143,14 +143,14 @@ const DoctorEarnings = () => {
             <div className="breakdown-item">
               <span className="breakdown-label">Appointments Revenue:</span>
               <span className="breakdown-value">
-                ${(earnings.total - earnings.baseSalary - earnings.totalBonus).toFixed(2)}
+                ৳{(earnings.total - earnings.baseSalary - earnings.totalBonus).toFixed(2)}
               </span>
             </div>
             {earnings.baseSalary > 0 && (
               <div className="breakdown-item">
                 <span className="breakdown-label">Base Salary:</span>
                 <span className="breakdown-value salary">
-                  ${earnings.baseSalary.toFixed(2)}
+                  ৳{earnings.baseSalary.toFixed(2)}
                 </span>
               </div>
             )}
@@ -158,14 +158,14 @@ const DoctorEarnings = () => {
               <div className="breakdown-item">
                 <span className="breakdown-label">Total Bonuses:</span>
                 <span className="breakdown-value bonus">
-                  ${earnings.totalBonus.toFixed(2)}
+                  ৳{earnings.totalBonus.toFixed(2)}
                 </span>
               </div>
             )}
             <div className="breakdown-item total">
               <span className="breakdown-label">Total Compensation:</span>
               <span className="breakdown-value">
-                ${earnings.total.toFixed(2)}
+                ৳{earnings.total.toFixed(2)}
               </span>
             </div>
           </div>
@@ -208,7 +208,7 @@ const DoctorEarnings = () => {
         <div className="table-header">
           <h3>Completed Appointments ({filteredAppointments.length})</h3>
           <div className="period-total">
-            Total: <strong>${filteredEarnings.toFixed(2)}</strong>
+            Total: <strong>৳{filteredEarnings.toFixed(2)}</strong>
           </div>
         </div>
 
@@ -232,7 +232,7 @@ const DoctorEarnings = () => {
                     <span className="appointment-type">{apt.appointment_type}</span>
                   </td>
                   <td>{apt.reason || 'General consultation'}</td>
-                  <td className="fee-column">${parseFloat(apt.consultation_fee || 0).toFixed(2)}</td>
+                  <td className="fee-column">৳{parseFloat(apt.consultation_fee || 0).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>

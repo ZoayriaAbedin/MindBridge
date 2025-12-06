@@ -4,7 +4,34 @@ const { query } = require('../config/database');
 const getAssessmentHistory = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { assessmentType } = req.query;
+    const userRole = req.user.role;
+    const { assessmentType, patientId } = req.query;
+
+    let targetUserId = userId;
+
+    // If doctor is requesting patient history
+    if (userRole === 'doctor' && patientId) {
+      // Verify doctor has treated this patient
+      const appointments = await query(
+        'SELECT id FROM appointments WHERE doctor_id = ? AND patient_id = ? LIMIT 1',
+        [userId, patientId]
+      );
+
+      if (appointments.length === 0) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. You can only view assessment history of your patients.'
+        });
+      }
+
+      targetUserId = patientId;
+    } else if (userRole === 'patient' && patientId && parseInt(patientId) !== userId) {
+      // Patients can only view their own assessments
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied'
+      });
+    }
 
     let sql = `
       SELECT 
@@ -14,7 +41,7 @@ const getAssessmentHistory = async (req, res) => {
       WHERE user_id = ?
     `;
     
-    const params = [userId];
+    const params = [targetUserId];
 
     if (assessmentType) {
       sql += ' AND assessment_type = ?';

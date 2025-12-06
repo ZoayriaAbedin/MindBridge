@@ -78,7 +78,7 @@ const AdminSalary = () => {
       await loadData();
       
       setShowBonusModal(false);
-      alert(`Bonus of $${bonusAmount} given to Dr. ${selectedDoctor.first_name} ${selectedDoctor.last_name}`);
+      alert(`Bonus of ৳${bonusAmount} given to Dr. ${selectedDoctor.first_name} ${selectedDoctor.last_name}`);
     } catch (error) {
       console.error('Error giving bonus:', error);
       alert(error.response?.data?.message || 'Failed to give bonus');
@@ -103,7 +103,7 @@ const AdminSalary = () => {
       // Reload data to get updated values
       await loadData();
       
-      alert(`Base salary updated to $${parsedSalary} for Dr. ${doctor.first_name} ${doctor.last_name}`);
+      alert(`Base salary updated to ৳${parsedSalary} for Dr. ${doctor.first_name} ${doctor.last_name}`);
     } catch (error) {
       console.error('Error adjusting salary:', error);
       alert(error.response?.data?.message || 'Failed to adjust salary');
@@ -138,7 +138,7 @@ const AdminSalary = () => {
         <div className="summary-card highlight">
           <div className="summary-icon">💰</div>
           <div className="summary-info">
-            <h3>${getTotalPlatformRevenue().toFixed(2)}</h3>
+            <h3>৳{getTotalPlatformRevenue().toFixed(2)}</h3>
             <p>Total Platform Revenue</p>
           </div>
         </div>
@@ -146,7 +146,7 @@ const AdminSalary = () => {
         <div className="summary-card">
           <div className="summary-icon">💵</div>
           <div className="summary-info">
-            <h3>${getTotalDoctorEarnings().toFixed(2)}</h3>
+            <h3>৳{getTotalDoctorEarnings().toFixed(2)}</h3>
             <p>Total Doctor Earnings</p>
           </div>
         </div>
@@ -154,7 +154,7 @@ const AdminSalary = () => {
         <div className="summary-card success">
           <div className="summary-icon">🎁</div>
           <div className="summary-info">
-            <h3>${getTotalBonuses().toFixed(2)}</h3>
+            <h3>৳{getTotalBonuses().toFixed(2)}</h3>
             <p>Total Bonuses Given</p>
           </div>
         </div>
@@ -162,7 +162,7 @@ const AdminSalary = () => {
         <div className="summary-card info">
           <div className="summary-icon">📊</div>
           <div className="summary-info">
-            <h3>{doctors.length > 0 ? (getTotalDoctorEarnings() / doctors.length).toFixed(2) : 0}</h3>
+            <h3>৳{doctors.length > 0 ? (getTotalDoctorEarnings() / doctors.length).toFixed(2) : 0}</h3>
             <p>Avg Earnings per Doctor</p>
           </div>
         </div>
@@ -198,12 +198,12 @@ const AdminSalary = () => {
                 </td>
                 <td>{doctor.specialization}</td>
                 <td className="sessions-count">{doctor.sessionCount}</td>
-                <td className="fee-column">${doctor.consultation_fee || 0}</td>
-                <td className="earnings-column">${doctor.totalEarnings.toFixed(2)}</td>
-                <td className="salary-column">${(doctor.base_salary || 0).toFixed(2)}</td>
-                <td className="bonus-column">${(doctor.bonus || 0).toFixed(2)}</td>
+                <td className="fee-column">৳{doctor.consultation_fee || 0}</td>
+                <td className="earnings-column">৳{doctor.totalEarnings.toFixed(2)}</td>
+                <td className="salary-column">৳{(doctor.base_salary || 0).toFixed(2)}</td>
+                <td className="bonus-column">৳{(doctor.bonus || 0).toFixed(2)}</td>
                 <td className="total-column">
-                  <strong>${(doctor.totalEarnings + (doctor.base_salary || 0) + (doctor.bonus || 0)).toFixed(2)}</strong>
+                  <strong>৳{(doctor.totalEarnings + (doctor.base_salary || 0) + (doctor.bonus || 0)).toFixed(2)}</strong>
                 </td>
                 <td>
                   <div className="action-buttons">
@@ -241,7 +241,7 @@ const AdminSalary = () => {
               <div className="doctor-stats">
                 <div className="stat-item">
                   <span className="stat-label">Current Earnings:</span>
-                  <span className="stat-value">${selectedDoctor.totalEarnings.toFixed(2)}</span>
+                  <span className="stat-value">৳{selectedDoctor.totalEarnings.toFixed(2)}</span>
                 </div>
                 <div className="stat-item">
                   <span className="stat-label">Sessions Completed:</span>
@@ -249,12 +249,12 @@ const AdminSalary = () => {
                 </div>
                 <div className="stat-item">
                   <span className="stat-label">Previous Bonuses:</span>
-                  <span className="stat-value">${(selectedDoctor.bonus || 0).toFixed(2)}</span>
+                  <span className="stat-value">৳{(selectedDoctor.bonus || 0).toFixed(2)}</span>
                 </div>
               </div>
 
               <div className="form-group">
-                <label>Bonus Amount ($) *</label>
+                <label>Bonus Amount (Taka) *</label>
                 <input
                   type="number"
                   value={bonusAmount}
@@ -279,7 +279,7 @@ const AdminSalary = () => {
                 <div className="bonus-preview">
                   <strong>New Total Compensation:</strong>
                   <span className="preview-amount">
-                    ${(selectedDoctor.totalEarnings + (selectedDoctor.bonus || 0) + parseFloat(bonusAmount || 0)).toFixed(2)}
+                    ৳{(selectedDoctor.totalEarnings + (selectedDoctor.bonus || 0) + parseFloat(bonusAmount || 0)).toFixed(2)}
                   </span>
                 </div>
               )}

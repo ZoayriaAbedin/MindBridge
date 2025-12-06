@@ -53,14 +53,32 @@ const Navbar = () => {
               >
                 Dashboard
               </Link>
-              {(user?.role === 'patient' || user?.role === 'doctor') && (
+              {user?.role === 'patient' && (
                 <Link 
-                  to={getProfileLink()} 
+                  to="/doctors" 
                   className="nav-link"
                   onClick={() => setMenuOpen(false)}
                 >
-                  Profile
+                  Find Doctors
                 </Link>
+              )}
+              {(user?.role === 'patient' || user?.role === 'doctor') && (
+                <>
+                  <Link 
+                    to="/messages" 
+                    className="nav-link"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    💬 Messages
+                  </Link>
+                  <Link 
+                    to={getProfileLink()} 
+                    className="nav-link"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Profile
+                  </Link>
+                </>
               )}
               <div className="nav-user">
                 <span className="user-name">

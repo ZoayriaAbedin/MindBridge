@@ -335,10 +335,227 @@ const cancelAppointment = async (req, res) => {
   }
 };
 
+// Get available time slots for a doctor on a specific date
+const getAvailableSlots = async (req, res) => {
+  try {
+    const { doctorId, date } = req.query;
+
+    if (!doctorId || !date) {
+      return res.status(400).json({
+        success: false,
+        message: 'Doctor ID and date are required'
+      });
+    }
+
+    // Get doctor's availability schedule
+    const doctors = await query(
+      'SELECT availability_schedule FROM doctor_profiles WHERE user_id = ?',
+      [doctorId]
+    );
+
+    if (doctors.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Doctor not found'
+      });
+    }
+
+    const availabilitySchedule = doctors[0].availability_schedule;
+    if (!availabilitySchedule) {
+      return res.json({
+        success: true,
+        availableSlots: [],
+        message: 'Doctor has not set availability schedule'
+      });
+    }
+
+    // Parse JSON if it's a string
+    const schedule = typeof availabilitySchedule === 'string' 
+      ? JSON.parse(availabilitySchedule) 
+      : availabilitySchedule;
+
+    // Normalize keys to lowercase (frontend stores days as Title Case)
+    const normalizedSchedule = Object.keys(schedule || {}).reduce((acc, key) => {
+      acc[key.toLowerCase()] = schedule[key];
+      return acc;
+    }, {});
+
+    // Get day of week (0 = Sunday, 6 = Saturday)
+    const requestedDate = new Date(date);
+    const dayOfWeek = requestedDate.getDay();
+    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const dayName = dayNames[dayOfWeek];
+
+    // Check if doctor is available on this day
+    const daySchedule = normalizedSchedule[dayName];
+    console.log('Checking availability for:', { doctorId, date, dayName, daySchedule });
+    
+    if (!daySchedule || !daySchedule.available) {
+      console.log('Doctor not available on this day');
+      return res.json({
+        success: true,
+        availableSlots: [],
+        message: 'Doctor is not available on this day'
+      });
+    }
+
+    // Get all appointments for this doctor on this date
+    const appointments = await query(
+      `SELECT appointment_time, duration_minutes 
+       FROM appointments 
+       WHERE doctor_id = ? 
+       AND appointment_date = ? 
+       AND status NOT IN ('cancelled', 'no_show')`,
+      [doctorId, date]
+    );
+    console.log('Existing appointments:', appointments);
+
+    // Generate 30-minute time slots between start and end time
+    const slots = [];
+    const startTime = daySchedule.startTime; // e.g., "09:00"
+    const endTime = daySchedule.endTime;     // e.g., "17:00"
+    console.log('Schedule:', { startTime, endTime });
+
+    const [startHour, startMin] = startTime.split(':').map(Number);
+    const [endHour, endMin] = endTime.split(':').map(Number);
+
+    let currentHour = startHour;
+    let currentMin = startMin;
+
+    while (currentHour < endHour || (currentHour === endHour && currentMin < endMin)) {
+      const timeStr = `${String(currentHour).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`;
+      
+      // Check if this slot conflicts with existing appointments
+      let isAvailable = true;
+      for (const apt of appointments) {
+        const [aptHour, aptMin] = apt.appointment_time.split(':').map(Number);
+        const aptDuration = apt.duration_minutes || 30;
+        
+        // Calculate appointment end time
+        const aptEndMin = aptMin + aptDuration;
+        const aptEndHour = aptHour + Math.floor(aptEndMin / 60);
+        const aptEndMinutes = aptEndMin % 60;
+
+        // Check for overlap
+        const slotStart = currentHour * 60 + currentMin;
+        const slotEnd = slotStart + 30;
+        const aptStart = aptHour * 60 + aptMin;
+        const aptEnd = aptEndHour * 60 + aptEndMinutes;
+
+        if ((slotStart >= aptStart && slotStart < aptEnd) || 
+            (slotEnd > aptStart && slotEnd <= aptEnd) ||
+            (slotStart <= aptStart && slotEnd >= aptEnd)) {
+          isAvailable = false;
+          break;
+        }
+      }
+
+      if (isAvailable) {
+        slots.push(timeStr);
+      }
+
+      // Move to next 30-minute slot
+      currentMin += 30;
+      if (currentMin >= 60) {
+        currentMin = 0;
+        currentHour++;
+      }
+    }
+
+    res.json({
+      success: true,
+      availableSlots: slots,
+      date: date
+    });
+
+  } catch (error) {
+    console.error('Get available slots error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get available slots',
+      error: error.message
+    });
+  }
+};
+
+// Get doctor's available dates (next 30 days)
+const getAvailableDates = async (req, res) => {
+  try {
+    const { doctorId } = req.params;
+
+    // Get doctor's availability schedule
+    const doctors = await query(
+      'SELECT availability_schedule FROM doctor_profiles WHERE user_id = ?',
+      [doctorId]
+    );
+
+    if (doctors.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Doctor not found'
+      });
+    }
+
+    const availabilitySchedule = doctors[0].availability_schedule;
+    if (!availabilitySchedule) {
+      return res.json({
+        success: true,
+        availableDates: [],
+        message: 'Doctor has not set availability schedule'
+      });
+    }
+
+    // Parse JSON if it's a string
+    const schedule = typeof availabilitySchedule === 'string' 
+      ? JSON.parse(availabilitySchedule) 
+      : availabilitySchedule;
+
+    // Normalize keys to lowercase (frontend stores days as Title Case)
+    const normalizedSchedule = Object.keys(schedule || {}).reduce((acc, key) => {
+      acc[key.toLowerCase()] = schedule[key];
+      return acc;
+    }, {});
+
+    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const availableDates = [];
+    const today = new Date();
+    
+    // Check next 30 days
+    for (let i = 0; i < 30; i++) {
+      const checkDate = new Date(today);
+      checkDate.setDate(today.getDate() + i);
+      
+      const dayOfWeek = checkDate.getDay();
+      const dayName = dayNames[dayOfWeek];
+      const daySchedule = normalizedSchedule[dayName];
+
+      if (daySchedule && daySchedule.available) {
+        const dateStr = checkDate.toISOString().split('T')[0];
+        availableDates.push(dateStr);
+      }
+    }
+
+    res.json({
+      success: true,
+      availableDates: availableDates
+    });
+
+  } catch (error) {
+    console.error('Get available dates error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get available dates',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getAppointments,
   getAppointment,
   createAppointment,
   updateAppointment,
-  cancelAppointment
+  cancelAppointment,
+  getAvailableSlots,
+  getAvailableDates
 };

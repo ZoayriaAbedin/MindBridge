@@ -86,6 +86,94 @@
 .appointment-form .form-group:nth-child(4) { animation-delay: 0.4s; }
 .appointment-form .form-group:nth-child(5) { animation-delay: 0.5s; }
 
+.calendar-wrapper {
+  margin-top: 8px;
+  display: grid;
+  gap: 16px;
+}
+
+.calendar-month {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 12px 16px;
+  background: #f8fbff;
+  box-shadow: 0 6px 20px rgba(66, 165, 245, 0.12);
+}
+
+.calendar-header {
+  font-weight: 700;
+  color: #1565c0;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  font-size: 0.85rem;
+  color: #718096;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.calendar-weekday {
+  padding: 4px 0;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.calendar-cell {
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #2d3748;
+  transition: all 0.2s ease;
+}
+
+.calendar-cell.day.available {
+  cursor: pointer;
+  border-color: #42a5f5;
+  color: #1565c0;
+  background: linear-gradient(135deg, #e3f2fd, #f1f7ff);
+}
+
+.calendar-cell.day.available:hover {
+  box-shadow: 0 0 0 3px rgba(66, 165, 245, 0.25);
+  transform: translateY(-1px);
+}
+
+.calendar-cell.day.unavailable {
+  color: #cbd5e0;
+  background: #f7fafc;
+  cursor: not-allowed;
+}
+
+.calendar-cell.selected {
+  border-color: #7c3aed;
+  background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+  color: #5b21b6;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+}
+
+.calendar-cell.empty {
+  background: transparent;
+  border: none;
+  pointer-events: none;
+}
+
+.day-number {
+  font-size: 0.95rem;
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -281,6 +369,30 @@
 @keyframes bounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
+}
+
+.form-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.875rem;
+  color: #718096;
+}
+
+.form-hint.success {
+  color: #2f855a;
+  font-weight: 500;
+}
+
+.form-hint.error {
+  color: #c53030;
+  font-weight: 500;
+}
+
+.loading-input,
+.unavailable-input {
+  background: #f7fafc;
+  color: #718096;
+  font-style: italic;
 }
 
 @media (max-width: 768px) {

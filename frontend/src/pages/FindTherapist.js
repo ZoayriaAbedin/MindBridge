@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { doctorsAPI } from '../services/api';
+import messagingAPI from '../services/messaging';
 import './FindTherapist.css';
 
 const FindTherapist = () => {
@@ -15,10 +16,6 @@ const FindTherapist = () => {
     maxFee: '',
   });
 
-  useEffect(() => {
-    loadDoctors();
-  }, []);
-
   const loadDoctors = async () => {
     try {
       setLoading(true);
@@ -30,6 +27,11 @@ const FindTherapist = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadDoctors();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleFilterChange = (e) => {
     setFilters({
@@ -100,13 +102,13 @@ const FindTherapist = () => {
             </div>
 
             <div className="form-group">
-              <label>Max Fee ($)</label>
+              <label>Max Fee (Taka)</label>
               <input
                 type="number"
                 name="maxFee"
                 value={filters.maxFee}
                 onChange={handleFilterChange}
-                placeholder="e.g., 200"
+                placeholder="e.g., 2000"
               />
             </div>
 
@@ -157,7 +159,7 @@ const FindTherapist = () => {
                   )}
                   {doctor.consultation_fee && (
                     <p>
-                      <strong>Consultation Fee:</strong> ${doctor.consultation_fee}
+                      <strong>Consultation Fee:</strong> ৳{doctor.consultation_fee}
                     </p>
                   )}
                   {doctor.bio && (
@@ -172,6 +174,30 @@ const FindTherapist = () => {
                   >
                     View Profile
                   </Link>
+                  <button
+                    onClick={async () => {
+                      try {
+                        const response = await messagingAPI.getOrCreateConversationWithDoctor(doctor.id);
+                        const conversation = {
+                          id: response.data.id,
+                          patient_id: response.data.patient_id,
+                          doctor_id: response.data.doctor_id,
+                          other_user_id: doctor.id,
+                          other_user_name: `Dr. ${doctor.first_name} ${doctor.last_name}`,
+                          other_user_role: 'doctor'
+                        };
+                        navigate('/messages', { 
+                          state: { selectedConversation: conversation } 
+                        });
+                      } catch (error) {
+                        console.error('Error starting conversation:', error);
+                        alert('Failed to start conversation. Please try again.');
+                      }
+                    }}
+                    className="btn btn-outline"
+                  >
+                    💬 Message
+                  </button>
                   <button
                     onClick={() => handleBookAppointment(doctor)}
                     className="btn btn-primary"

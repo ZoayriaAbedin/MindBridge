@@ -69,7 +69,7 @@ const register = async (req, res) => {
       success: true,
       message: 'Registration successful',
       data: {
-        userId: result,
+        id: result,
         email,
         role,
         firstName,
@@ -138,7 +138,7 @@ const login = async (req, res) => {
       success: true,
       message: 'Login successful',
       data: {
-        userId: user.id,
+        id: user.id,
         email: user.email,
         role: user.role,
         firstName: user.first_name,

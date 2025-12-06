@@ -147,7 +147,7 @@
 
 .user-role {
   font-size: 0.75rem;
-  color: white;
+  color: white !important;
   text-transform: capitalize;
   background: linear-gradient(135deg, #667eea, #764ba2);
   padding: 3px 10px;

@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
 import InteractiveBackground from './components/InteractiveBackground';
+import ErrorBoundary from './components/ErrorBoundary';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -24,6 +25,7 @@ import DoctorPatients from './pages/DoctorPatients';
 import DoctorSchedule from './pages/DoctorSchedule';
 import DoctorEarnings from './pages/DoctorEarnings';
 import DoctorPublicProfile from './pages/DoctorPublicProfile';
+import Messages from './pages/Messages';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminUsers from './pages/AdminUsers';
 import AdminDoctors from './pages/AdminDoctors';
@@ -34,19 +36,20 @@ import './App.css';
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="App">
-          <InteractiveBackground />
-          <Navbar />
-          <main className="main-content">
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+    <ErrorBoundary>
+      <AuthProvider>
+        <Router>
+          <div className="App">
+            <InteractiveBackground />
+            <Navbar />
+            <main className="main-content">
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
 
-              {/* Patient Routes */}
+                {/* Patient Routes */}
               <Route
                 path="/patient/dashboard"
                 element={
@@ -132,6 +135,14 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={['patient', 'doctor']}>
                     <GameDetail />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/messages"
+                element={
+                  <PrivateRoute allowedRoles={['patient', 'doctor']}>
+                    <Messages />
                   </PrivateRoute>
                 }
               />
@@ -243,6 +254,7 @@ function App() {
         </div>
       </Router>
     </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

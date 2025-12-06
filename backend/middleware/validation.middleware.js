@@ -49,9 +49,9 @@ const validateRegistration = [
     .isIn(['patient', 'doctor'])
     .withMessage('Role must be either patient or doctor'),
   body('phone')
-    .optional()
+    .optional({ checkFalsy: true })
     .matches(/^[\d\s\-\+\(\)]+$/)
-    .withMessage('Please provide a valid phone number'),
+    .withMessage('Phone number can only contain digits, spaces, and these characters: - + ( )'),
   validate
 ];
 

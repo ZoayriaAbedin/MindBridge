@@ -264,6 +264,126 @@
   padding: 40px 20px;
 }
 
+.patient-history-modal {
+  max-width: 900px !important;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.patient-email {
+  color: #718096;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+.history-section {
+  margin-bottom: 30px;
+}
+
+.history-section h3 {
+  color: #2d3748;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.no-data {
+  text-align: center;
+  color: #a0aec0;
+  padding: 30px;
+  background: #f7fafc;
+  border-radius: 8px;
+  font-style: italic;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+.assessments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.assessment-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  border-radius: 12px;
+  color: white;
+}
+
+.assessment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.assessment-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  color: white;
+}
+
+.severity-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.severity-badge.minimal,
+.severity-badge.none {
+  background: rgba(72, 187, 120, 0.3);
+}
+
+.severity-badge.mild {
+  background: rgba(237, 242, 247, 0.3);
+}
+
+.severity-badge.moderate {
+  background: rgba(246, 173, 85, 0.3);
+}
+
+.severity-badge.severe,
+.severity-badge.moderately-severe {
+  background: rgba(245, 101, 101, 0.3);
+}
+
+.assessment-score {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.assessment-score .score {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.assessment-score .max-score {
+  font-size: 1.2rem;
+  opacity: 0.8;
+}
+
+.assessment-date {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 0.875rem;
+}
+
 .loading,
 .empty-state {
   text-align: center;
@@ -298,5 +418,13 @@
   
   .detail-row .label {
     min-width: auto;
+  }
+
+  .assessments-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .patient-history-modal {
+    max-width: 95% !important;
   }
 }

@@ -55,6 +55,12 @@ const Register = () => {
     setLoading(true);
 
     const { confirmPassword, ...registerData } = formData;
+    
+    // Remove phone if it's empty or invalid
+    if (!registerData.phone || registerData.phone.trim() === '') {
+      delete registerData.phone;
+    }
+    
     const result = await register(registerData);
 
     if (result.success) {
