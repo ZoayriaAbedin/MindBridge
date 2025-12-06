@@ -16,11 +16,13 @@ const AdminDoctors = () => {
   const loadDoctors = async () => {
     try {
       setLoading(true);
-      // Pass empty isApproved to get all doctors (both approved and pending)
-      const response = await doctorsAPI.search({ isApproved: '' });
+      // Pass 'all' to get all doctors (both approved and pending)
+      const response = await doctorsAPI.search({ isApproved: 'all' });
       const doctorsList = response.data.data || [];
       console.log('Loaded doctors for admin:', doctorsList);
+      console.log('Total doctors:', doctorsList.length);
       console.log('Pending doctors:', doctorsList.filter(d => !d.is_approved));
+      console.log('Approved doctors:', doctorsList.filter(d => d.is_approved));
       setDoctors(doctorsList);
     } catch (error) {
       console.error('Error loading doctors:', error);

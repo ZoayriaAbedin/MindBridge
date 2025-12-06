@@ -41,13 +41,13 @@ const searchDoctors = async (req, res) => {
     } else if (isApproved === 'false' || isApproved === false) {
       sql += ' AND dp.is_approved = FALSE';
       console.log('Filtering by: pending only');
-    } else if (isApproved === '' || isApproved === undefined) {
+    } else if (isApproved === 'all' || isApproved === '') {
       // No filter - show all doctors (for admin)
       console.log('No approval filter: showing all doctors');
     } else {
-      // Default for unknown values: show approved only
+      // Default when isApproved is undefined: show approved only (for public)
       sql += ' AND dp.is_approved = TRUE';
-      console.log('Default filter: approved only');
+      console.log('Default filter: approved only (public search)');
     }
 
     // Filter by specialization
