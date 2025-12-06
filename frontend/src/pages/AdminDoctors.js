@@ -16,16 +16,24 @@ const AdminDoctors = () => {
   const loadDoctors = async () => {
     try {
       setLoading(true);
+      console.log('🔍 Admin loading doctors...');
+      console.log('API URL:', process.env.REACT_APP_API_URL || 'Using default');
+      
       // Pass 'all' to get all doctors (both approved and pending)
       const response = await doctorsAPI.search({ isApproved: 'all' });
       const doctorsList = response.data.data || [];
-      console.log('Loaded doctors for admin:', doctorsList);
-      console.log('Total doctors:', doctorsList.length);
-      console.log('Pending doctors:', doctorsList.filter(d => !d.is_approved));
-      console.log('Approved doctors:', doctorsList.filter(d => d.is_approved));
+      
+      console.log('✅ Loaded doctors for admin:', doctorsList);
+      console.log('📊 Total doctors:', doctorsList.length);
+      console.log('⏳ Pending doctors:', doctorsList.filter(d => !d.is_approved).length);
+      console.log('✔️ Approved doctors:', doctorsList.filter(d => d.is_approved).length);
+      
       setDoctors(doctorsList);
     } catch (error) {
-      console.error('Error loading doctors:', error);
+      console.error('❌ Error loading doctors:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      alert('Failed to load doctors. Please check console for details.');
     } finally {
       setLoading(false);
     }
@@ -81,6 +89,11 @@ const AdminDoctors = () => {
       <div className="page-header">
         <h1>Doctor Management</h1>
         <p>View and manage all doctors on the platform</p>
+        {process.env.NODE_ENV === 'development' && (
+          <small style={{ color: '#999', display: 'block', marginTop: '5px' }}>
+            API: {process.env.REACT_APP_API_URL || 'default'}
+          </small>
+        )}
       </div>
 
       <div className="controls-section">
